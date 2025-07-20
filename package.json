@@ -1,0 +1,26 @@
+{
+  "name": "omegle",
+  "version": "1.0.0",
+  "description": "a basic simultaneous video and chat application",
+  "keywords": [
+    "websocket",
+    "webrtc",
+    "chat-app",
+    "realtime-communication"
+  ],
+  "homepage": "https://github.com/ajay007e/omegle#readme",
+  "bugs": {
+    "url": "https://github.com/ajay007e/omegle/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajay007e/omegle.git"
+  },
+  "license": "MIT",
+  "author": "Ajay Mathew",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
