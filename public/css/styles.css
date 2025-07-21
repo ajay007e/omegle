@@ -133,14 +133,14 @@ a {
   overflow-wrap: break-word;
   justify-content: end;
 }
-.chat-messages .message.left {
+.chat-messages .message.right {
   text-align: right;
 }
 .chat-messages .message.center {
   text-align: center;
 }
 
-.chat-messages .message .meta {
+.chat-messages .message.meta {
   font-size: 15px;
   font-weight: bold;
   color: var(--dark-color-b);

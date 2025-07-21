@@ -1,132 +1,110 @@
-const chatForm = document.getElementById("chat-form");
-const chatMessages = document.querySelector(".chat-messages");
-const roomName = document.getElementById("room-name");
-const userList = document.getElementById("users");
-const msgBox = document.getElementById("msg");
-const form = document.getElementById("form");
-const chat = document.querySelector(".chat-container");
-const join = document.querySelector(".join-container");
+const chatMessageInput = document.getElementById("chat-form");
+const chatMessageContainer = document.querySelector(".chat-messages");
+const chatRoomSection = document.getElementById("room-name");
+const chatRoomUsersSection = document.getElementById("users");
+const chatMessageInputSection = document.getElementById("msg");
+const userDataInput = document.getElementById("form");
+const chatSection = document.querySelector(".chat-container");
+const welcomeSection = document.querySelector(".join-container");
+const chatLeaveButton = document.getElementById("leave-btn");
 
 const socket = io();
 
-// Get username and room from URL
-form.addEventListener("submit", (e) => {
-  join.classList.toggle("hidden");
-  chat.classList.toggle("hidden");
+userDataInput.addEventListener("submit", (e) => {
+  chatSection.classList.toggle("hidden");
+  welcomeSection.classList.toggle("hidden");
   e.preventDefault();
-  const username = e.target.username.value;
-  chatForm.msg.focus();
 
-  // Join chatroom
+  // TODO: username is empty here since user is annonymous
+  const username = e.target.username.value;
+  chatMessageInput.msg.focus();
+
   socket.emit("joinRoom", { username });
 });
 
-// Get room and users
+chatMessageInput.addEventListener("submit", (e) => {
+  e.preventDefault();
+  let msg = e.target.elements.msg.value.trim();
+  if (msg) {
+    socket.emit("chatMessage", msg);
+    e.target.elements.msg.value = "";
+    e.target.elements.msg.focus();
+  }
+});
+
+chatLeaveButton.addEventListener("click", () => {
+  leaveRoom();
+});
+
 socket.on("roomUsers", ({ room, users }) => {
   // outputRoomName(room);
   // outputUsers(users);
 });
 
-// Message from server
 socket.on("message", (message) => {
-  // console.log(message);
   outputMessage(message);
-
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 });
-// ----------------------------------------------------------------------------------------------------------------------------------------------
+
 socket.on("info-message", (message) => {
-  // console.log(message);
-  outputMessage(message, 2);
-
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  outputMessage(message);
+  chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 });
-//--------------------------------------------------------------------------------------------------------------------------------------------
-// Message submit
-chatForm.addEventListener("submit", (e) => {
-  e.preventDefault();
 
-  // Get message text
-  let msg = e.target.elements.msg.value;
-
-  msg = msg.trim();
-
-  if (!msg) {
-    return false;
+const outputMessage = (message) => {
+  if (message.isSystemGenerated) {
+    chatMessageContainer.innerHTML 
+      = `<div class="message center"><p class="text">${message.text}</p></div>`;
+  } else {
+    const div = generateMessageDiv(message) 
+    chatMessageContainer.prepend(div)
   }
 
-  // Emit message to server
-  socket.emit("chatMessage", msg);
-
-  // Clear input
-  e.target.elements.msg.value = "";
-  e.target.elements.msg.focus();
-});
-
-// Output message to DOM
-function outputMessage(message, type = 1) {
-  const div = document.createElement("div");
-  div.classList.add("message");
-  const p = document.createElement("p");
-  p.classList.add("meta");
-  p.innerText = "Stranger";
-  if (type == 1) {
-    if (socket.id === message.id) {
-      div.classList.add("left");
-      p.innerText = "You";
-    }
-    p.innerHTML += `<span>  ${message.time}</span>`;
-    div.appendChild(p);
-    const para = document.createElement("p");
-    para.classList.add("text");
-    para.innerText = message.text;
-    div.appendChild(para);
-    // document.querySelector(".chat-messages").appendChild(div);
-    document.querySelector(".chat-messages").prepend(div);
+  if (message.isUserWaiting) {
+    chatMessageInputSection.disabled = true;
   } else {
-    // div.classList.add("center");
-    // const para = document.createElement("p");
-    // para.classList.add("text");
-    // para.innerText = message.text;
-    // div.appendChild(para);
-    document.querySelector(
-      ".chat-messages"
-    ).innerHTML = `<div class="message center"><p class="text">${message.text}</p></div>`;
-    if (message.text == "Waiting for someone to join...") {
-      msgBox.disabled = true;
-    } else {
-      msgBox.disabled = false;
-    }
+    chatMessageInputSection.disabled = false;
   }
 }
 
-// Add room name to DOM
-// function outputRoomName(room) {
-//   roomName.innerText = room;
-// }
+const generateMessageDiv = (message) => {
+    const messageDiv = document.createElement("div");
+    messageDiv.classList.add("message");
 
-// Add users to DOM
-// function outputUsers(users) {
-//   userList.innerHTML = "";
-//   users.forEach((user) => {
-//     const li = document.createElement("li");
-//     li.innerText = user.username;
-//     userList.appendChild(li);
-//   });
-// }
-function leaveRoom() {
+    const infoParagraphTag = document.createElement("p");
+    infoParagraphTag.classList.add("meta");
+    if (socket.id === message.id) {
+      messageDiv.classList.add("right");
+      infoParagraphTag.innerText = "You";
+    } else{
+      infoParagraphTag.innerText = "Stranger";
+    }
+    infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
+    messageDiv.appendChild(infoParagraphTag);
+
+    const messageParagraphTag = document.createElement("p");
+    messageParagraphTag.classList.add("text");
+    messageParagraphTag.innerText = message.text;
+    messageDiv.appendChild(messageParagraphTag);
+    return messageDiv;
+}
+
+const outputRoomName = (room) => {
+   chatRoomSection.innerText = room;
+}
+
+const outputUsers = (users) => {
+   chatRoomUsersSection.innerHTML = "";
+   users.forEach((user) => {
+     const li = document.createElement("li");
+     li.innerText = user.username;
+     chatRoomUsersSection.appendChild(li);
+   });
+}
+
+const leaveRoom = () => {
   const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
   if (leaveRoom) {
     window.location = "../";
-  } else {
   }
 }
-
-//Prompt the user before leave chat room
-document.getElementById("leave-btn").addEventListener("click", () => {
-  leaveRoom();
-});
-
-// -------------------------------------------
