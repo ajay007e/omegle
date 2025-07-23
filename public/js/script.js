@@ -17,9 +17,9 @@ userDataInput.addEventListener("submit", (e) => {
 
   // TODO: username is empty here since user is annonymous
   const username = e.target.username.value;
+  startPeerConnection(username); 
   chatMessageInput.msg.focus();
 
-  socket.emit("joinRoom", { username });
 });
 
 chatMessageInput.addEventListener("submit", (e) => {
@@ -107,4 +107,67 @@ const leaveRoom = () => {
   if (leaveRoom) {
     window.location = "../";
   }
+}
+
+
+
+const videoSection = document.querySelector(".video-section");
+
+const userDb = {};
+
+socket.on("user-left", (userId) => {
+  if (userDb[userId]) {
+    userDb[userId].close();
+  }
+})
+
+
+
+
+const startPeerConnection = (username) => {
+  const peer = new Peer(undefined, {
+    host: "/",
+    port: "5001"
+  })
+  peer.on("open", id => {
+    const hostVideoElement = document.createElement('video');
+    hostVideoElement.muted = true;
+    navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    }).then(hostStream => {
+        addVideoStream(hostVideoElement, hostStream);
+        socket.emit("joinRoom", { username, userId: id });
+        peer.on("call", call => {
+          call.answer(hostStream);
+          const userVideoElement = document.createElement('video');
+          call.on("stream", userStream => {
+            addVideoStream(userVideoElement, userStream);
+          });
+        });
+        socket.on('user-joined', userId => {
+          connectToNewUser(peer, userId, hostStream)
+        });
+      });
+  });
+}
+
+const connectToNewUser = (peer, userId, stream) => {
+    const call = peer.call(userId, stream);
+    const userVideo = document.createElement('video');
+    call.on('stream', userStream => {
+        addVideoStream(userVideo, userStream)
+    })
+    call.on('close', () => {
+        userVideo.remove()
+    })
+    userDb[userId] = call;
+}
+
+const addVideoStream = (video, stream) => {
+    video.srcObject = stream;
+    video.addEventListener('loadedmetadata', () => {
+        video.play()
+    })
+    videoSection.append(video)
 }
