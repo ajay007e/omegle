@@ -16,13 +16,13 @@
   </head>
   <body>
     <div class="join-container">
-      <header class="join-header">
-        <h1><i class="fas fa-comment-dots"></i> Omegle Demo</h1>
-      </header>
       <main class="join-main">
-        <div class="desc">
-          <span class="italic"
-            ><p>
+        <header class="join-header">
+          <h1><i class="fas fa-comment-dots"></i>Omegle Demo</h1>
+        </header>
+        <div class="join-description">
+          <span class="italic">
+            <p>
               <a
                 href="https://www.omegle.com/"
                 target="_blank"
@@ -78,12 +78,13 @@
         <a id="leave-btn" class="btn">Leave Room</a>
       </header>
       <main class="chat-main">
-        <!-- <div class="chat-sidebar">
+        <!--<span class="sidebar-toggle"><i class="fas fa-info"></i></span>
+        <div class="chat-sidebar">
           <h3><i class="fas fa-comments"></i> Room Name:</h3>
           <h2 id="room-name"></h2>
           <h3><i class="fas fa-users"></i> Users</h3>
           <ul id="users"></ul>
-        </div> -->
+        </div>-->
         <div class="video-section">
           <div class="blue"></div>
           <div class="green"></div>
@@ -102,8 +103,7 @@
                 disabled
               />
               <button class="btn btn--1">
-                <!-- <i class="fas fa-paper-plane"></i> -->
-                Send
+                <i class="fas fa-paper-plane"></i>
               </button>
             </form>
           </div>
