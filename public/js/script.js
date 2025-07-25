@@ -1,110 +1,17 @@
-const chatMessageInput = document.getElementById("chat-form");
-const chatMessageContainer = document.querySelector(".chat-messages");
-const chatRoomSection = document.getElementById("room-name");
-const chatRoomUsersSection = document.getElementById("users");
-const chatMessageInputSection = document.getElementById("msg");
+import { setupSocket, sendMessage } from "./chat.js"
+import { startPeerConnection } from "./video.js";
+import { bindUserDataInutListener, bindChatMessageInputListner, bindLeaveButtonListener } from "./dom.js";
+
+
 const userDataInput = document.getElementById("form");
-const chatSection = document.querySelector(".chat-container");
-const welcomeSection = document.querySelector(".join-container");
 const chatLeaveButton = document.getElementById("leave-btn");
+const chatMessageInput = document.getElementById("chat-form");
 
 const socket = io();
+setupSocket(socket);
 
-userDataInput.addEventListener("submit", (e) => {
-  chatSection.classList.toggle("hidden");
-  welcomeSection.classList.toggle("hidden");
-  e.preventDefault();
 
-  // TODO: username is empty here since user is annonymous
-  const username = e.target.username.value;
-  chatMessageInput.msg.focus();
+bindUserDataInutListener(userDataInput, (username) => {startPeerConnection(socket, username)});
+bindChatMessageInputListner(chatMessageInput, (message) => {sendMessage(socket, message)});
+bindLeaveButtonListener(chatLeaveButton, () => { window.location = "../"});
 
-  socket.emit("joinRoom", { username });
-});
-
-chatMessageInput.addEventListener("submit", (e) => {
-  e.preventDefault();
-  let msg = e.target.elements.msg.value.trim();
-  if (msg) {
-    socket.emit("chatMessage", msg);
-    e.target.elements.msg.value = "";
-    e.target.elements.msg.focus();
-  }
-});
-
-chatLeaveButton.addEventListener("click", () => {
-  leaveRoom();
-});
-
-socket.on("roomUsers", ({ room, users }) => {
-  // outputRoomName(room);
-  // outputUsers(users);
-});
-
-socket.on("message", (message) => {
-  outputMessage(message);
-  chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
-});
-
-socket.on("info-message", (message) => {
-  outputMessage(message);
-  chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
-});
-
-const outputMessage = (message) => {
-  if (message.isSystemGenerated) {
-    chatMessageContainer.innerHTML 
-      = `<div class="message center"><p class="text">${message.text}</p></div>`;
-  } else {
-    const div = generateMessageDiv(message) 
-    chatMessageContainer.prepend(div)
-  }
-
-  if (message.isUserWaiting) {
-    chatMessageInputSection.disabled = true;
-  } else {
-    chatMessageInputSection.disabled = false;
-  }
-}
-
-const generateMessageDiv = (message) => {
-    const messageDiv = document.createElement("div");
-    messageDiv.classList.add("message");
-
-    const infoParagraphTag = document.createElement("p");
-    infoParagraphTag.classList.add("meta");
-    if (socket.id === message.id) {
-      messageDiv.classList.add("right");
-      infoParagraphTag.innerText = "You";
-    } else{
-      infoParagraphTag.innerText = "Stranger";
-    }
-    infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
-    messageDiv.appendChild(infoParagraphTag);
-
-    const messageParagraphTag = document.createElement("p");
-    messageParagraphTag.classList.add("text");
-    messageParagraphTag.innerText = message.text;
-    messageDiv.appendChild(messageParagraphTag);
-    return messageDiv;
-}
-
-const outputRoomName = (room) => {
-   chatRoomSection.innerText = room;
-}
-
-const outputUsers = (users) => {
-   chatRoomUsersSection.innerHTML = "";
-   users.forEach((user) => {
-     const li = document.createElement("li");
-     li.innerText = user.username;
-     chatRoomUsersSection.appendChild(li);
-   });
-}
-
-const leaveRoom = () => {
-  const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
-  if (leaveRoom) {
-    window.location = "../";
-  }
-}

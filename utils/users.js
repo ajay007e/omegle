@@ -6,9 +6,9 @@ const {
 
 const users = [];
 
-const whenUserJoins = (id, username) => {
+const whenUserJoins = (id, username, userId) => {
   const {room, isAlone} = getRoomForUser()
-  const user = {id, username, room, isAlone};
+  const user = {id, username, room, isAlone, userId};
   users.push(user);
   return user;
 }

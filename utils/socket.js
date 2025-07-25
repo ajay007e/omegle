@@ -16,8 +16,8 @@ const {
 
 const socket = (io) => {
   io.on("connection", (socket) => {
-    socket.on("joinRoom", ({ username }) => {
-      const user = whenUserJoins(socket.id, username);
+    socket.on("joinRoom", ({ username, userId }) => {
+      const user = whenUserJoins(socket.id, username, userId);
       socket.join(user.room);
 
       if (user.isAlone) {
@@ -26,9 +26,8 @@ const socket = (io) => {
         socket.emit(infoMessage, formatMessage(botName, strangerJoinMessage));
       }
 
-      socket.broadcast
-        .to(user.room)
-        .emit(infoMessage, formatMessage(botName, strangerJoinMessage));
+      socketBroadcast(socket, user.room, infoMessage, formatMessage(botName, strangerJoinMessage));
+      socketBroadcast(socket, user.room, 'user-joined', userId);
 
       io.to(user.room).emit(roomUsers, {
         room: user.room,
@@ -54,6 +53,8 @@ const socket = (io) => {
           users: getUsersByRoom(user.room),
         });
 
+        io.to(user.room).emit("user-left", user.userId)
+
         setTimeout(() => {
           io.to(user.room).emit(
             infoMessage,
@@ -63,6 +64,10 @@ const socket = (io) => {
       }
     });
   });
+}
+
+const socketBroadcast = (socket, room, event, message) => {
+   socket.broadcast.to(room).emit(event, message);
 }
 
 module.exports = socket;
