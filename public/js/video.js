@@ -1,6 +1,8 @@
-import { appendVideo } from "./dom.js";
+import { generateVideoPlayer, toggleControlBtn } from "./dom.js";
 
 const userStremDatabase = {};
+
+let localStream = null;
 
 export const startPeerConnection = (socket, username) => {
   const peer = new Peer(undefined, {
@@ -11,16 +13,20 @@ export const startPeerConnection = (socket, username) => {
     const hostVideoElement = document.createElement('video');
     hostVideoElement.muted = true;
     navigator.mediaDevices.getUserMedia({
-      video: true,
+      video: {
+        width: {min: 640, ideal: 1920, max: 1920},
+        height: {min: 480, ideal: 1080, max: 1080},
+      },
       audio: true
     }).then(hostStream => {
-        addVideoStream(hostVideoElement, hostStream);
+        localStream = hostStream;
+        addVideoStream(hostVideoElement, hostStream, true);
         socket.emit("joinRoom", { username, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
           const userVideoElement = document.createElement('video');
           call.on("stream", userStream => {
-            addVideoStream(userVideoElement, userStream);
+            addVideoStream(userVideoElement, userStream, false);
           });
         });
         socket.on('user-joined', userId => {
@@ -30,11 +36,23 @@ export const startPeerConnection = (socket, username) => {
   });
 }
 
+export const toggleControl = (kind) => {
+  if(!localStream) return;
+
+  let track = localStream.getTracks().find(track => track.kind === kind);
+  if(track.enabled) {
+    track.enabled = false;
+  } else {
+    track.enabled = true;
+  }
+  toggleControlBtn(kind);
+}
+
 const connectToNewUser = (peer, userId, stream) => {
     const call = peer.call(userId, stream);
     const userVideo = document.createElement('video');
     call.on('stream', userStream => {
-        addVideoStream(userVideo, userStream)
+        addVideoStream(userVideo, userStream, false)
     })
     call.on('close', () => {
         const stream = userVideo.srcObject;
@@ -46,12 +64,12 @@ const connectToNewUser = (peer, userId, stream) => {
     userStremDatabase[userId] = call;
 }
 
-const addVideoStream = (video, stream) => {
+const addVideoStream = (video, stream, isHostVideo) => {
     video.srcObject = stream;
     video.addEventListener('loadedmetadata', () => {
         video.play()
     });
-    appendVideo(video);
+    generateVideoPlayer(isHostVideo, video);
 }
 
 export const closePeerConnection = (userId) => {
