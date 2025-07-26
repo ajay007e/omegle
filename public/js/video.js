@@ -1,4 +1,4 @@
-import { generateVideoPlayer, toggleControlBtn } from "./dom.js";
+import { generateVideoPlayer, toggleControlBtn, appendVideoPlayer, cleanUpEmptyVideoFrames } from "./dom.js";
 
 const userStremDatabase = {};
 
@@ -8,7 +8,7 @@ export const startPeerConnection = (socket, username) => {
   const peer = new Peer(undefined, {
     host: "/",
     port: "5001"
-  })
+  });
   peer.on("open", id => {
     const hostVideoElement = document.createElement('video');
     hostVideoElement.muted = true;
@@ -51,25 +51,30 @@ export const toggleControl = (kind) => {
 const connectToNewUser = (peer, userId, stream) => {
     const call = peer.call(userId, stream);
     const userVideo = document.createElement('video');
+    let userVideoFrame = undefined;
     call.on('stream', userStream => {
-        addVideoStream(userVideo, userStream, false)
+        userVideoFrame = addVideoStream(userVideo, userStream, false);
     })
     call.on('close', () => {
         const stream = userVideo.srcObject;
         if (stream) {
           stream.getTracks().forEach(track => track.stop());
         }
-        userVideo.remove();
+        userVideoFrame.remove();
     })
     userStremDatabase[userId] = call;
 }
 
 const addVideoStream = (video, stream, isHostVideo) => {
+    if (!stream || !video)  return;
     video.srcObject = stream;
+    const videoPlayer = generateVideoPlayer(isHostVideo, video);
     video.addEventListener('loadedmetadata', () => {
-        video.play()
+        video.play();
+        appendVideoPlayer(videoPlayer);
+        cleanUpEmptyVideoFrames();
     });
-    generateVideoPlayer(isHostVideo, video);
+    return videoPlayer;
 }
 
 export const closePeerConnection = (userId) => {

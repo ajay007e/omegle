@@ -1,25 +1,29 @@
 import { toggleControl } from "./video.js";
 
-const chatMessageContainer = document.querySelector(".chat-messages");
+const chatMessageContainer = document.querySelector(".chat-messages-area");
 const chatRoomSection = document.getElementById("room-name");
 const chatRoomUsersSection = document.getElementById("users");
 const chatMessageInputSection = document.getElementById("msg");
-const videoSection = document.querySelector(".video-section");
+const videoSection = document.getElementById("video-section");
 const welcomeSection = document.querySelector(".join-container");
 const chatSection = document.querySelector(".chat-container");
 const chatMessageInput = document.getElementById("chat-form");
 
 
-export const bindUserDataInutListener = (element, action) => {
-  element.addEventListener("submit", (e) => handleUserDataSubmit(e, action));
+export const bindActionToggleButtonListener = (element, action) => {
+  element?.addEventListener("click", () => handleChatStartToggle(action));
 }
 
-export const bindChatMessageInputListner = (element, action) => {
-  element.addEventListener("submit", (e) => handleMessageSubmit(e, action));
+export const bindStartChatButtonListener = (element, action) => {
+  element?.addEventListener("click", () => handleStartChat(action));
+}
+
+export const bindChatMessageInputListener = (element, action) => {
+  element?.addEventListener("submit", (e) => handleMessageSubmit(e, action));
 }
 
 export const bindLeaveButtonListener = (element, action) => {
-  element.addEventListener("click", () => handleLeaveRoom(action));
+  element?.addEventListener("click", () => handleLeaveRoom(action));
 }
 
 export const outputMessage = (message) => {
@@ -72,7 +76,7 @@ export const outputUsers = (users) => {
 
 export const generateVideoPlayer = (isControlRequired, video) => {
   const videoPlayer = document.createElement("div");
-  videoPlayer.classList.add("video-player");
+  videoPlayer.classList.add("video-frame");
 
   if (isControlRequired) {
     const control = document.createElement("div");
@@ -93,7 +97,23 @@ export const generateVideoPlayer = (isControlRequired, video) => {
     videoPlayer.appendChild(control);
   }
   videoPlayer.appendChild(video);
-  videoSection.append(videoPlayer);
+  return videoPlayer;
+}
+
+
+export const cleanUpEmptyVideoFrames = () => {
+  // since peer.js will trigger stream event from call twice, video-frame divs
+  // will be created without children; to remove the empty video-frames this utility
+  // method will help.
+  document.querySelectorAll('.video-frame').forEach(div => {
+    if (div.children.length === 0) {
+      div.remove();
+    }
+  });
+}
+
+export const appendVideoPlayer = (videoPlayer) => {
+  videoSection.appendChild(videoPlayer);
 }
 
 const handleLeaveRoom = (leave) => {
@@ -113,16 +133,15 @@ const handleMessageSubmit = (e, action) => {
   }  
 }
 
-const handleUserDataSubmit = (e, action) => {
-  chatSection.classList.toggle("hidden");
-  welcomeSection.classList.toggle("hidden");
-  e.preventDefault();
-
-  // TODO: username is empty here since user is annonymous
-  const username = e.target.username.value;
-  action(username);
-  chatMessageInput.msg.focus();
+const handleStartChat = (e, action) => {
+  action('');
 }
+
+const handleChatStartToggle = (action) => {
+  document.getElementById("start-chat-btn").classList.toggle("hidden");
+  document.getElementById("join-room-container").classList.toggle("hidden");
+  action();
+};
 
 export const toggleControlBtn = (kind) => {
 

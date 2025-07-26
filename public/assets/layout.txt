@@ -1,0 +1,16 @@
+
+const toggleBtn = document.getElementById("toggle-btn");
+const videoSection = document.getElementById("video-section");
+const textSection = document.getElementById("text-section");
+
+toggleBtn.addEventListener("click", () => {
+  // Toggle "hidden" class on both sections
+  videoSection.classList.toggle("hidden");
+  textSection.classList.toggle("hidden");
+
+  // Optionally change icon (☰ ↔ ✖)
+  const isTextVisible = !textSection.classList.contains("hidden");
+  toggleBtn.textContent = isTextVisible ? "✖" : "☰";
+});
+
+
