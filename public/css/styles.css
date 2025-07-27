@@ -3,21 +3,3 @@
 @import url('layout.css');
 @import url('lobby.css');
 @import url('chat.css');
-
-@media (max-width: 700px) {
-  .chat-main {
-    display: block;
-  }
-
-  .chat-sidebar {
-    display: none;
-  }
-  .chat-messages {
-    padding: 30px 200px 30px 5%;
-    max-height: 55vh;
-    min-height: 55vh;
-
-    max-width: 80.5vw;
-    min-width: 80.5vw;
-  }
-}

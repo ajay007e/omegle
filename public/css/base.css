@@ -153,3 +153,83 @@ body::-webkit-scrollbar-thumb {
   box-shadow: var(--shadow-md);
 }
 
+
+
+
+
+/* =============================
+   Responsive — Phones (≤480px)
+============================= */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+}
+
+/* =============================
+   Responsive — Tablets (481px–768px)
+============================= */
+@media (min-width: 481px) and (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .hide-on-tablet {
+    display: none !important;
+  }
+
+  .show-on-tablet {
+    display: block !important;
+  }
+}
+
+/* =============================
+   Orientation Specific (Optional)
+============================= */
+
+/* Portrait devices */
+@media (orientation: portrait) {
+  .portrait-only {
+    display: block;
+  }
+
+  .landscape-only {
+    display: none;
+  }
+}
+
+/* Landscape devices */
+@media (orientation: landscape) {
+  .portrait-only {
+    display: none;
+  }
+
+  .landscape-only {
+    display: block;
+  }
+}

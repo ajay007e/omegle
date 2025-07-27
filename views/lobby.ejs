@@ -24,21 +24,29 @@
   </div>
     <div class="split-bottom">
         <div class="action-buttons">
-          <a id="start-chat-btn" class="action-btn" href="/chat">Start Chatting</a>
-          <button id="action-toggle-btn" class="toggle-icon" aria-label="Toggle Join Action Buttons">
+          <div class="left-section">
+            <a id="start-chat-btn" class="action-btn" href="/chat">Start Chat</a>
+
+            <div id="join-room-container" class="hidden">
+              <input
+                type="text"
+                id="room-code"
+                placeholder="Enter room code"
+                class="room-input"
+                aria-label="Room code"
+              />
+              <button id="join-btn" class="action-btn secondary">Join Room</button>
+            </div>
+          </div>
+
+          <button
+            id="action-toggle-btn"
+            class="toggle-icon"
+            aria-label="Toggle Join Action Buttons"
+          >
             <i class="fas fa-yin-yang"></i>
           </button>
-          <div id="join-room-container" class="hidden">
-            <input
-              type="text"
-              id="room-code"
-              placeholder="Enter room code"
-              aria-label="Room code"
-              class="room-input"
-            />
-            <button id="join-btn" class="action-btn secondary">Join a Room</button>
-          </div>
-</div>
+        </div>
       <div class="ad-banner">
         <p><strong>Ad:</strong> Discover more at <a href="#">example.com</a></p>
       </div>

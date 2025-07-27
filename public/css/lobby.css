@@ -1,3 +1,7 @@
+
+
+
+
 .split-section {
   display: flex;
   flex-direction: column;
@@ -20,6 +24,10 @@
   max-width: 600px;
   margin: 0 auto;
   color: var(--color-text);
+}
+
+.scrollable-text p {
+  padding: .5rem 0;
 }
 
 .semi-heading {
@@ -69,7 +77,56 @@
 
 .action-buttons {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 1rem;
+  width: 26.5rem;
+  flex-wrap: nowrap;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+#start-chat-btn,
+#join-room-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.room-input {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+#join-btn {
+  white-space: nowrap;
+}
+
+.toggle-icon {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.4rem;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.toggle-icon:hover {
+  background: #ddd;
 }
 
 .ad-banner {
@@ -102,6 +159,7 @@
   border-radius: 6px;
   cursor: pointer;
   border: none;
+  font-size:1rem;
   transition: background 0.2s ease;
 }
 
@@ -112,6 +170,7 @@
 .action-btn.secondary {
   background-color: #eee;
   color: #555;
+  border: 1px solid #eee;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -123,7 +182,7 @@
 
 .room-input {
   font-size: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
   min-width: 180px;
@@ -135,17 +194,84 @@
   border-color: var(--primary-color, #1a73e8);
 }
 
-.toggle-icon {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.5rem;
-  user-select: none;
-  width: 4.75rem;
-  border-radius: 50%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+
+
+/* =============================
+   Phones (max-width: 480px)
+============================= */
+@media (max-width: 480px) {
+  .split-section {
+    width: 90vw;
+    margin: 2rem auto;
+    border-radius: 4px;
+  }
+
+  .semi-heading {
+    font-size: 1rem;
+    margin: 0.5rem;
+  }
+
+  .scrollable-text {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .split-bottom {
+    padding: 1rem 0.5rem;
+  }
+
+  .action-buttons {
+    width: 100%;
+  }
+
+  .action-btn,
+  .room-input {
+    width: 100%;
+    text-align: center;
+  }
+
+  .ad-banner {
+    font-size: 0.75rem;
+    height: 4rem;
+    padding: 0.5rem;
+  }
 }
+
+/* =============================
+   Tablets (481px–768px)
+============================= */
+@media (min-width: 481px) and (max-width: 768px) {
+  .split-section {
+    width: 80vw;
+    margin: 3rem auto;
+  }
+
+  .scrollable-text {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .action-buttons {
+    width: 23.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .action-btn {
+    flex: 1 1 45%;
+  }
+
+  .room-input {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .ad-banner {
+    font-size: 0.8rem;
+    height: 4.5rem;
+  }
+}
+
+
+
