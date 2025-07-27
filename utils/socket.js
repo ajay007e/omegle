@@ -55,12 +55,10 @@ const socket = (io) => {
 
         io.to(user.room).emit("user-left", user.userId)
 
-        setTimeout(() => {
-          io.to(user.room).emit(
-            infoMessage,
-            formatMessage(botName, waitingMessage)
-          );
-        }, 1000);
+        io.to(user.room).emit(
+          infoMessage,
+          formatMessage(botName, waitingMessage)
+        );
       }
     });
   });

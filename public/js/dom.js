@@ -1,4 +1,4 @@
-import { toggleControl } from "./video.js";
+import { toggleControl, isTrackEnabled } from "./video.js";
 
 const chatMessageContainer = document.querySelector(".chat-messages-area");
 const chatRoomSection = document.getElementById("room-name");
@@ -27,14 +27,11 @@ export const bindLeaveButtonListener = (element, action) => {
 }
 
 export const outputMessage = (message) => {
-  if (message.isSystemGenerated) {
-    chatMessageContainer.innerHTML 
-      = `<div class="message center"><p class="text">${message.text}</p></div>`;
-  } else {
-    const div = generateMessageDiv(message) 
-    chatMessageContainer.prepend(div)
-  }
+  if (message.isUserActionMessage) {
+    chatMessageContainer.innerHTML = "";
+  } 
 
+  chatMessageContainer.prepend(generateMessageDiv(message))
   chatMessageInputSection.disabled = message.isUserWaiting;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 }
@@ -48,14 +45,25 @@ const generateMessageDiv = (message) => {
     if (message.isHostGenerated) {
       messageDiv.classList.add("right");
       infoParagraphTag.innerText = "You";
-    } else{
+    } else if (message.isSystemGenerated) {
+      messageDiv.classList.add("center");
+    } else {
       infoParagraphTag.innerText = "Stranger";
     }
-    infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
-    messageDiv.appendChild(infoParagraphTag);
+    
+    if (message.isUserActionMessage) {
+      messageDiv.classList.add("disappearing"); 
+      messageDiv.addEventListener("animationed", () => messageDiv.remove());
+    }
+
+
+    if (!message.isSystemGenerated) {
+      infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
+      messageDiv.appendChild(infoParagraphTag);
+    }
 
     const messageParagraphTag = document.createElement("p");
-    messageParagraphTag.classList.add("text");
+    messageParagraphTag.classList.add("message-text");
     messageParagraphTag.innerText = message.text;
     messageDiv.appendChild(messageParagraphTag);
     return messageDiv;
@@ -84,12 +92,14 @@ export const generateVideoPlayer = (isControlRequired, video) => {
 
     const camaraControl = document.createElement("i");
     camaraControl.id = "camara-cntl"
-    camaraControl.classList.add("control-btn", "fas", "fa-video", "enabled");
+    camaraControl.classList.add("control-btn", "fas", "fa-video");
+    isTrackEnabled("video", true) && camaraControl.classList.add("enabled");
     camaraControl.addEventListener("click", () => toggleControl('video'));
 
     const audioControl = document.createElement("i");
     audioControl.id = "audio-cntl"
-    audioControl.classList.add("control-btn", "fas", "fa-microphone", "enabled");
+    audioControl.classList.add("control-btn", "fas", "fa-microphone");
+    isTrackEnabled("audio", true) && camaraControl.classList.add("enabled");
     audioControl.addEventListener("click", () => toggleControl('audio'));
 
     control.appendChild(camaraControl);
@@ -150,9 +160,7 @@ export const toggleControlBtn = (kind) => {
 
   if (kind === 'video') {
     camaraControlBtn.classList.toggle("enabled");
-    camaraControlBtn.classList.toggle("disabled")
   } else {
     audioControlBtn.classList.toggle("enabled");
-    audioControlBtn.classList.toggle("disabled")
   }
 }

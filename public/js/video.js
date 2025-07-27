@@ -17,7 +17,7 @@ export const startPeerConnection = (socket, username) => {
         width: {min: 640, ideal: 1920, max: 1920},
         height: {min: 480, ideal: 1080, max: 1080},
       },
-      audio: true
+      audio: false
     }).then(hostStream => {
         localStream = hostStream;
         addVideoStream(hostVideoElement, hostStream, true);
@@ -36,14 +36,35 @@ export const startPeerConnection = (socket, username) => {
   });
 }
 
-export const toggleControl = (kind) => {
-  if(!localStream) return;
+export const isTrackEnabled = (kind, isAlertSuppressed = false) => {
+  if(isTrackNotAvailable(kind, isAlertSuppressed)) return false;
+  return getTrack(kind).enabled;
+}
 
-  let track = localStream.getTracks().find(track => track.kind === kind);
-  if(track.enabled) {
-    track.enabled = false;
+const isTrackNotAvailable = (kind, isAlertSuppressed = false) => {
+  if(!localStream) {
+    return isAlertSuppressed ? true : getMediaPermission(kind);
+  }
+  let track = getTrack(kind);
+  if (!track) {
+    return isAlertSuppressed ? true : getMediaPermission(kind);
+  }
+  return false;
+}
+
+const getTrack = (kind) => localStream.getTracks().find(track => track.kind === kind);
+
+const getMediaPermission = (kind) => {
+  window.alert(`We don't got Media Permission for ${kind}. Please give the permission and retry.`)
+  return true; 
+}
+
+export const toggleControl = (kind) => {
+  if(isTrackNotAvailable(kind)) return;
+  if(isTrackEnabled(kind, true)) {
+    getTrack(kind).enabled = false;
   } else {
-    track.enabled = true;
+    getTrack(kind).enabled = true;
   }
   toggleControlBtn(kind);
 }
