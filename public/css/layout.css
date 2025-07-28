@@ -101,6 +101,11 @@
     padding: 1rem;
   }
 
+  .header.space-between {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
   .brand {
     flex-direction: column;
     gap: 0.25rem;

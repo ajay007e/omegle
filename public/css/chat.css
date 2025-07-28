@@ -258,3 +258,126 @@
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
+
+
+
+
+@media (max-width: 946px) {
+  .chat-main-container {
+    flex-direction: column;
+  }
+
+  .chat-left-container {
+    width: 100%;
+    height: 40%;
+    flex: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .video-wrapper {
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .video-frame,
+  .scroll-content {
+    height: 90%; /* Fit inside new layout */
+    width: 48%;
+    aspect-ratio: 16 / 9;
+    margin: 0 0.5%;
+  }
+
+  .chat-right-container {
+    width: 100%;
+    height: 60%;
+    flex: none;
+  }
+
+  .chat-messages-area {
+    flex: 1 1 auto;
+  }
+
+  .chat-form-container {
+    padding: 0.5rem;
+  }
+}
+
+
+
+@media (max-width: 600px) {
+  .chat-left-container {
+    width: 100%;
+    height: 40%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Main video takes full width */
+  .video-frame {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+  }
+
+  .video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Mini video preview */
+  .video-frame.mini#host-vf {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 30%;
+    height: 30%;
+    aspect-ratio: 16 / 9;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 5;
+    background: black;
+
+    transition:
+      width 0.4s ease-in-out,
+      height 0.4s ease-in-out,
+      transform 0.4s ease-in-out,
+      top 0.4s ease-in-out,
+      left 0.4s ease-in-out;
+  }
+
+  .video-frame#host-vf video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Hide scrollable-text unless shown by toggle */
+  .video-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .scrollable-text {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .chat-right-container {
+    width: 100%;
+    height: 60%;
+  }
+}

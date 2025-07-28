@@ -7,9 +7,14 @@ const formatMessage = (username, text, isSystemGenerated=true, id=1) => {
     text,
     time: moment().format('h:mm a'),
     id,
-    isSystemGenerated,
-    isUserWaiting: text === waitingMessage,
-    isUserActionMessage: text === strangerLeftMessage || text === strangerJoinMessage
+    info: {
+      isSystemGenerated,
+      isUserWaiting: text === waitingMessage,
+      isUserActionMessage: text === strangerLeftMessage || text === strangerJoinMessage,
+      isUserLeftMessage: text === strangerLeftMessage,
+      isUserJoinMessage: text === strangerJoinMessage
+
+    }
   }
 }
 

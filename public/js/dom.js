@@ -27,13 +27,18 @@ export const bindLeaveButtonListener = (element, action) => {
 }
 
 export const outputMessage = (message) => {
-  if (message.isUserActionMessage) {
+  if (message.info.isUserActionMessage) {
     chatMessageContainer.innerHTML = "";
   } 
 
   chatMessageContainer.prepend(generateMessageDiv(message))
-  chatMessageInputSection.disabled = message.isUserWaiting;
+  chatMessageInputSection.disabled = message.info.isUserWaiting;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+
+  if (message.info.isUserLeftMessage){
+    document.getElementById("host-vf").classList.remove("mini");
+    document.getElementById("user-vf")?.remove();
+  }
 }
 
 const generateMessageDiv = (message) => {
@@ -42,22 +47,22 @@ const generateMessageDiv = (message) => {
 
     const infoParagraphTag = document.createElement("p");
     infoParagraphTag.classList.add("meta");
-    if (message.isHostGenerated) {
+    if (message.info.isHostGenerated) {
       messageDiv.classList.add("right");
       infoParagraphTag.innerText = "You";
-    } else if (message.isSystemGenerated) {
+    } else if (message.info.isSystemGenerated) {
       messageDiv.classList.add("center");
     } else {
       infoParagraphTag.innerText = "Stranger";
     }
     
-    if (message.isUserActionMessage) {
+    if (message.info.isUserActionMessage) {
       messageDiv.classList.add("disappearing"); 
       messageDiv.addEventListener("animationed", () => messageDiv.remove());
     }
 
 
-    if (!message.isSystemGenerated) {
+    if (!message.info.isSystemGenerated) {
       infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
       messageDiv.appendChild(infoParagraphTag);
     }
@@ -105,6 +110,10 @@ export const generateVideoPlayer = (isControlRequired, video) => {
     control.appendChild(camaraControl);
     control.appendChild(audioControl);
     videoPlayer.appendChild(control);
+
+    videoPlayer.id = "host-vf";
+  } else {
+    videoPlayer.id = "user-vf";
   }
   videoPlayer.appendChild(video);
   return videoPlayer;
@@ -124,6 +133,9 @@ export const cleanUpEmptyVideoFrames = () => {
 
 export const appendVideoPlayer = (videoPlayer) => {
   videoSection.appendChild(videoPlayer);
+  if (videoPlayer.id === 'user-vf') {
+    document.getElementById("host-vf").classList.add("mini");
+  }
 }
 
 const handleLeaveRoom = (leave) => {
