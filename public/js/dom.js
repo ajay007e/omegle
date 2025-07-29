@@ -1,38 +1,44 @@
-import { toggleControl } from "./video.js";
+import { toggleControl, isTrackEnabled } from "./video.js";
 
-const chatMessageContainer = document.querySelector(".chat-messages");
+const chatMessageContainer = document.querySelector(".chat-messages-area");
 const chatRoomSection = document.getElementById("room-name");
 const chatRoomUsersSection = document.getElementById("users");
 const chatMessageInputSection = document.getElementById("msg");
-const videoSection = document.querySelector(".video-section");
+const videoSection = document.getElementById("video-section");
 const welcomeSection = document.querySelector(".join-container");
 const chatSection = document.querySelector(".chat-container");
 const chatMessageInput = document.getElementById("chat-form");
 
 
-export const bindUserDataInutListener = (element, action) => {
-  element.addEventListener("submit", (e) => handleUserDataSubmit(e, action));
+export const bindActionToggleButtonListener = (element, action) => {
+  element?.addEventListener("click", () => handleChatStartToggle(action));
 }
 
-export const bindChatMessageInputListner = (element, action) => {
-  element.addEventListener("submit", (e) => handleMessageSubmit(e, action));
+export const bindStartChatButtonListener = (element, action) => {
+  element?.addEventListener("click", () => handleStartChat(action));
+}
+
+export const bindChatMessageInputListener = (element, action) => {
+  element?.addEventListener("submit", (e) => handleMessageSubmit(e, action));
 }
 
 export const bindLeaveButtonListener = (element, action) => {
-  element.addEventListener("click", () => handleLeaveRoom(action));
+  element?.addEventListener("click", () => handleLeaveRoom(action));
 }
 
 export const outputMessage = (message) => {
-  if (message.isSystemGenerated) {
-    chatMessageContainer.innerHTML 
-      = `<div class="message center"><p class="text">${message.text}</p></div>`;
-  } else {
-    const div = generateMessageDiv(message) 
-    chatMessageContainer.prepend(div)
-  }
+  if (message.info.isUserActionMessage) {
+    chatMessageContainer.innerHTML = "";
+  } 
 
-  chatMessageInputSection.disabled = message.isUserWaiting;
+  chatMessageContainer.prepend(generateMessageDiv(message))
+  chatMessageInputSection.disabled = message.info.isUserWaiting;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+
+  if (message.info.isUserLeftMessage){
+    document.getElementById("host-vf").classList.remove("mini");
+    document.getElementById("user-vf")?.remove();
+  }
 }
 
 const generateMessageDiv = (message) => {
@@ -41,17 +47,28 @@ const generateMessageDiv = (message) => {
 
     const infoParagraphTag = document.createElement("p");
     infoParagraphTag.classList.add("meta");
-    if (message.isHostGenerated) {
+    if (message.info.isHostGenerated) {
       messageDiv.classList.add("right");
       infoParagraphTag.innerText = "You";
-    } else{
+    } else if (message.info.isSystemGenerated) {
+      messageDiv.classList.add("center");
+    } else {
       infoParagraphTag.innerText = "Stranger";
     }
-    infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
-    messageDiv.appendChild(infoParagraphTag);
+    
+    if (message.info.isUserActionMessage) {
+      messageDiv.classList.add("disappearing"); 
+      messageDiv.addEventListener("animationed", () => messageDiv.remove());
+    }
+
+
+    if (!message.info.isSystemGenerated) {
+      infoParagraphTag.innerHTML += `<span>  ${message.time}</span>`;
+      messageDiv.appendChild(infoParagraphTag);
+    }
 
     const messageParagraphTag = document.createElement("p");
-    messageParagraphTag.classList.add("text");
+    messageParagraphTag.classList.add("message-text");
     messageParagraphTag.innerText = message.text;
     messageDiv.appendChild(messageParagraphTag);
     return messageDiv;
@@ -72,7 +89,7 @@ export const outputUsers = (users) => {
 
 export const generateVideoPlayer = (isControlRequired, video) => {
   const videoPlayer = document.createElement("div");
-  videoPlayer.classList.add("video-player");
+  videoPlayer.classList.add("video-frame");
 
   if (isControlRequired) {
     const control = document.createElement("div");
@@ -80,20 +97,45 @@ export const generateVideoPlayer = (isControlRequired, video) => {
 
     const camaraControl = document.createElement("i");
     camaraControl.id = "camara-cntl"
-    camaraControl.classList.add("control-btn", "fas", "fa-video", "enabled");
+    camaraControl.classList.add("control-btn", "fas", "fa-video");
+    isTrackEnabled("video", true) && camaraControl.classList.add("enabled");
     camaraControl.addEventListener("click", () => toggleControl('video'));
 
     const audioControl = document.createElement("i");
     audioControl.id = "audio-cntl"
-    audioControl.classList.add("control-btn", "fas", "fa-microphone", "enabled");
+    audioControl.classList.add("control-btn", "fas", "fa-microphone");
+    isTrackEnabled("audio", true) && camaraControl.classList.add("enabled");
     audioControl.addEventListener("click", () => toggleControl('audio'));
 
     control.appendChild(camaraControl);
     control.appendChild(audioControl);
     videoPlayer.appendChild(control);
+
+    videoPlayer.id = "host-vf";
+  } else {
+    videoPlayer.id = "user-vf";
   }
   videoPlayer.appendChild(video);
-  videoSection.append(videoPlayer);
+  return videoPlayer;
+}
+
+
+export const cleanUpEmptyVideoFrames = () => {
+  // since peer.js will trigger stream event from call twice, video-frame divs
+  // will be created without children; to remove the empty video-frames this utility
+  // method will help.
+  document.querySelectorAll('.video-frame').forEach(div => {
+    if (div.children.length === 0) {
+      div.remove();
+    }
+  });
+}
+
+export const appendVideoPlayer = (videoPlayer) => {
+  videoSection.appendChild(videoPlayer);
+  if (videoPlayer.id === 'user-vf') {
+    document.getElementById("host-vf").classList.add("mini");
+  }
 }
 
 const handleLeaveRoom = (leave) => {
@@ -113,16 +155,15 @@ const handleMessageSubmit = (e, action) => {
   }  
 }
 
-const handleUserDataSubmit = (e, action) => {
-  chatSection.classList.toggle("hidden");
-  welcomeSection.classList.toggle("hidden");
-  e.preventDefault();
-
-  // TODO: username is empty here since user is annonymous
-  const username = e.target.username.value;
-  action(username);
-  chatMessageInput.msg.focus();
+const handleStartChat = (e, action) => {
+  action('');
 }
+
+const handleChatStartToggle = (action) => {
+  document.getElementById("start-chat-btn").classList.toggle("hidden");
+  document.getElementById("join-room-container").classList.toggle("hidden");
+  action();
+};
 
 export const toggleControlBtn = (kind) => {
 
@@ -131,9 +172,7 @@ export const toggleControlBtn = (kind) => {
 
   if (kind === 'video') {
     camaraControlBtn.classList.toggle("enabled");
-    camaraControlBtn.classList.toggle("disabled")
   } else {
     audioControlBtn.classList.toggle("enabled");
-    audioControlBtn.classList.toggle("disabled")
   }
 }

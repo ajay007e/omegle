@@ -1,0 +1,235 @@
+@import url('variables.css');
+@import url("https://fonts.googleapis.com/css?family=Roboto&display=swap");
+
+/* ========================
+   1. Reset & Box Model
+======================== */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ========================
+   2. Root & Body Defaults
+======================== */
+html, body {
+  height: 100%;
+  font-size: 16px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* ========================
+   3. Typography
+======================== */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+p {
+  margin-bottom: 0rem;
+}
+
+/* ========================
+   4. Links
+======================== */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ========================
+   5. Lists
+======================== */
+ul, ol {
+  list-style: none;
+}
+
+/* ========================
+   6. Forms & Inputs
+======================== */
+input, button, textarea, select {
+  font: inherit;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+button {
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* ========================
+   7. Images & Media
+======================== */
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+/* ========================
+   8. Scrollbars
+======================== */
+
+/* Global scrollbar styling for WebKit browsers */
+body::-webkit-scrollbar {
+  width: 10px;
+}
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+body::-webkit-scrollbar-thumb {
+  background-color: var(--color-muted);
+  border-radius: 6px;
+}
+
+/* Hide scrollbar utility class */
+.hide-scrollbar {
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;         /* IE 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;                    /* WebKit */
+}
+
+/* ========================
+   9. Utility Classes
+======================== */
+.italic {
+  font-style: italic;
+}
+
+.bold {
+  font-weight: bolder;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.grid {
+  display: grid;
+}
+
+.w-full {
+  width: 100%;
+}
+.h-full {
+  height: 100%;
+}
+
+/* ========================
+   10. Transitions & Effects
+======================== */
+.transition {
+  transition: all 0.3s ease;
+}
+
+.rounded {
+  border-radius: 0.5rem;
+}
+
+.shadow {
+  box-shadow: var(--shadow-md);
+}
+
+
+
+
+
+/* =============================
+   Responsive — Phones (≤480px)
+============================= */
+@media (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .show-on-mobile {
+    display: block !important;
+  }
+}
+
+/* =============================
+   Responsive — Tablets (481px–768px)
+============================= */
+@media (min-width: 481px) and (max-width: 768px) {
+  html {
+    font-size: 15px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .hide-on-tablet {
+    display: none !important;
+  }
+
+  .show-on-tablet {
+    display: block !important;
+  }
+}
+
+/* =============================
+   Orientation Specific (Optional)
+============================= */
+
+/* Portrait devices */
+@media (orientation: portrait) {
+  .portrait-only {
+    display: block;
+  }
+
+  .landscape-only {
+    display: none;
+  }
+}
+
+/* Landscape devices */
+@media (orientation: landscape) {
+  .portrait-only {
+    display: none;
+  }
+
+  .landscape-only {
+    display: block;
+  }
+}

@@ -1,0 +1,383 @@
+
+
+
+
+.chat-main-container {
+  display: flex;
+  height: calc(100vh - 8.5rem);
+  overflow: hidden;
+}
+
+
+
+/* LEFT CONTAINER: dynamic width based on height */
+.chat-left-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: fit-content;
+}
+
+
+/* VIDEO WRAPPER: vertical stack */
+.video-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-frame {
+  aspect-ratio: 16 / 9;
+  height: 50%;
+  margin: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: black;
+}
+
+.video-frame video {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1.33 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #222;
+  pointer-events: none;
+}
+
+.control {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.video-frame:hover .control {
+  opacity: 1;
+}
+
+.control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F44336;
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  z-index: 3;
+  transition: background 0.3s;
+}
+
+.control-btn:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.control-btn.enabled {
+  background: #1FA43F;
+}
+
+
+
+/* TEXT SCROLL ALTERNATE */
+.scrollable-text {
+  height: 100%;
+  overflow-y: auto;
+  background: #f9f9f9;
+}
+
+.scroll-content {
+  aspect-ratio: 16 / 9;
+  height: 50%;
+  margin: 0.25rem 0;
+}
+
+.toggle-button {
+  background: none;
+  font-size: 1.5rem;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+}
+
+
+
+/* RIGHT CONTAINER: flexible width */
+.chat-right-container {
+  flex: 1; /* take up remaining space */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+
+/* RIGHT INNER AREAS */
+.chat-messages-area {
+  flex: 1 1 90%;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f0f0f0;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.chat-messages-area .message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 70%;
+  width: fit-content;
+  margin: 0.5rem 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  background-color: #E5E0D8;
+  color: #1B3C53;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+}
+
+.chat-messages-area .message.right {
+  align-self: flex-end;
+  background-color: #D3F4E2;
+  color: #003C2D;
+}
+
+.chat-messages-area .message.center {
+  align-self: center;
+  text-align: center;
+  background-color: #f0f4f8;
+  color: #3a4a5a;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.chat-messages-area .message .meta {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #004030;
+  opacity: 0.7;
+  margin-bottom: 0.25rem;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+.chat-messages-area .message.right .meta {
+  text-align: right;
+}
+
+.chat-messages-area .message .meta span {
+  color: #888;
+  font-weight: normal;
+  margin-left: 0.5rem;
+}
+
+.chat-messages-area .message.disappearing {
+  animation: fadeOut 4s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+
+.chat-form-container {
+  margin-top: auto;
+  border-top: 0.1rem solid #ddd;
+  padding: 0.5rem;
+  padding-bottom: 0rem;
+}
+
+.chat-form-container form {
+  display: flex;
+  height: 2.5rem;
+  gap: 0.5rem;
+}
+
+.chat-form-container input[type="text"] {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.message-send-btn {
+  cursor: pointer;
+  padding: 5px 15px;
+  background: #3f51b5;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+}
+
+
+
+.scrollable-text::-webkit-scrollbar,
+.chat-messages-area::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollable-text,
+.chat-messages-area{
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+
+
+
+@media (max-width: 946px) {
+  .chat-main-container {
+    flex-direction: column;
+  }
+
+  .chat-left-container {
+    width: 100%;
+    height: 40%;
+    flex: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .video-wrapper {
+    flex-direction: row;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .video-frame,
+  .scroll-content {
+    height: 90%; /* Fit inside new layout */
+    width: 48%;
+    aspect-ratio: 16 / 9;
+    margin: 0 0.5%;
+  }
+
+  .chat-right-container {
+    width: 100%;
+    height: 60%;
+    flex: none;
+  }
+
+  .chat-messages-area {
+    flex: 1 1 auto;
+  }
+
+  .chat-form-container {
+    padding: 0.5rem;
+  }
+}
+
+
+
+@media (max-width: 600px) {
+  .chat-left-container {
+    width: 100%;
+    height: 40%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Main video takes full width */
+  .video-frame {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+  }
+
+  .video-frame video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Mini video preview */
+  .video-frame.mini#host-vf {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 30%;
+    height: 30%;
+    aspect-ratio: 16 / 9;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 5;
+    background: black;
+
+    transition:
+      width 0.4s ease-in-out,
+      height 0.4s ease-in-out,
+      transform 0.4s ease-in-out,
+      top 0.4s ease-in-out,
+      left 0.4s ease-in-out;
+  }
+
+  .video-frame#host-vf video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Hide scrollable-text unless shown by toggle */
+  .video-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .scrollable-text {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+  }
+
+  .chat-right-container {
+    width: 100%;
+    height: 60%;
+  }
+}
