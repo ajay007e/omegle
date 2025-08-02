@@ -2,7 +2,7 @@ import { outputMessage } from "./dom.js";
 import { closePeerConnection } from "./video.js";
 
 export const setupSocket = (socket) => {
-  socket.on("roomUsers", ({ room, users }) => {
+  socket.on("room-and-users", ({ room, users }) => {
     // outputRoomName(room);
     // outputUsers(users);
   });
@@ -23,5 +23,5 @@ export const setupSocket = (socket) => {
 }
 
 export const sendMessage = (socket, message) => {
-  socket.emit("chatMessage", message);
+  socket.emit("chat-message", message);
 }

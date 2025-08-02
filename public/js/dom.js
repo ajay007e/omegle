@@ -27,11 +27,9 @@ export const bindLeaveButtonListener = (element, action) => {
 }
 
 export const outputMessage = (message) => {
-  console.log(message.info)
   if (message.info.isUserActionMessage && message.info.isPrivateRoom) {
     chatMessageContainer.innerHTML = "";
   } 
-
   if (!message.info.isPrivateRoom && message.info.isUserWaiting) return;
   chatMessageContainer.prepend(generateMessageDiv(message))
   chatMessageInputSection.disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;

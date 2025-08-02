@@ -8,14 +8,16 @@ const {
   updateRoomTypeById
 } = require("./database");
 
+const { generateRandomNumber, isStringEmpty } = require("./helper")
 
-const isStringEmpty = (str) => str === undefined || str.trim() === ''; 
+const {
+  room_types
+} = require("./constants")
 
-const randomRoom = () => Math.floor(Math.random() * 1000);
 
 const getAvailableWaitingRoom = () => {
-  room = randomRoom();
-  while (getRoomsByType('private').includes(room)) {
+  room = generateRandomNumber();
+  while (getRoomsByType(room_types.PRIVATE).includes(room)) {
     room = randomRoom();
   }
   return room;
@@ -25,16 +27,16 @@ const getPrivateRoom = () => {
   let room;
   let isAlone;
   let type;
-  if (getRoomsByType('waiting').length === 0) {
+  if (getRoomsByType(room_types.WAITING).length === 0) {
     room = getAvailableWaitingRoom();
-    addRoom(room, 'waiting');
+    addRoom(room, room_types.WAITING);
     isAlone=true;
-    type = 'waiting';
+    type = room_types.WAITING;
   } else {
-    room = getRandomRoomByType('waiting').id;
+    room = getRandomRoomByType(room_types.WAITING).id;
     isAlone=false;
-    updateRoomTypeById(room, 'private');
-    type = 'private';
+    updateRoomTypeById(room, room_types.PRIVATE);
+    type = room_types.PRIVATE;
   }
   return {room, isAlone, type};
 }
@@ -44,9 +46,9 @@ const getMeetingRoom = (roomId) => {
     if (getRoomById(roomId)) {isAlone = false}
     else {
       isAlone = true;
-      addRoom(roomId, 'meeting');
+      addRoom(roomId, room_types.MEETING);
     }
-    return {room: roomId, isAlone, type: 'meeting'};
+    return {room: roomId, isAlone, type: room_types.MEETING};
 }
 
 
@@ -60,13 +62,13 @@ const getRoomForUser = (roomId) => {
 
 const handleRoomWhenUserLeaves = (userRoom) => {
     const roomType = getRoomById(userRoom)?.type; 
-    if (roomType === 'waiting') {
+    if (roomType === room_types.WAITING) {
       removeRoom(userRoom);
     }
-    if (roomType === 'private') {
-      updateRoomTypeById(userRoom, 'waiting');
+    if (roomType === room_types.PRIVATE) {
+      updateRoomTypeById(userRoom, room_types.WAITING);
     }
-    if (roomType === 'meeting' && getUsersByRoom(userRoom).length == 1) {
+    if (roomType === room_types.MEETING && getUsersByRoom(userRoom).length == 1) {
       removeRoom(userRoom);
     }
 }

@@ -13,6 +13,7 @@ const getUsersByRoom = (room) => users.filter(user => user.room === room);
 
 const rooms = [];
 
+const getAllRooms = () => rooms;
 const addRoom = (id, type) => rooms.push({id, type});
 const removeRoom = (roomId) => {
   const idx = rooms.findIndex(room => room.id === roomId);
@@ -47,6 +48,7 @@ module.exports = {
 
   addRoom,
   removeRoom,
+  getAllRooms,
   getRoomById,
   getRoomsByType,
   getRandomRoomByType,

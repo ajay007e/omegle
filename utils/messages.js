@@ -1,19 +1,19 @@
 const moment = require('moment');
-const { waitingMessage, checkStrangerLeftMessage, checkStrangerJoinMessage } = require("./constants")
+const { global_constants, message_templates, message_helper_functions, room_types } = require("./constants")
 
 const formatMessage = (username, text, extra = {isSystemGenerated:true}) => {
   return {
-    username: username === "Anonymous" ? "Stranger" : username,
+    username: username === global_constants.ANONYMOUS ? global_constants.STRANGER : username,
     text,
-    time: moment().format('h:mm a'),
+    time: moment().format(global_constants.TIME_FORMAT),
     id: extra?.id ?? 1,
     info: {
       isSystemGenerated: extra?.isSystemGenerated ?? true,
-      isUserWaiting: text === waitingMessage,
-      isUserActionMessage: checkStrangerJoinMessage(text) || checkStrangerLeftMessage(text),
-      isUserLeftMessage: checkStrangerLeftMessage(text),
-      isUserJoinMessage: checkStrangerJoinMessage(text),
-      isPrivateRoom: extra?.room?.type !== 'meeting' 
+      isUserWaiting: text === message_templates.WAITING_MESSAGE,
+      isUserActionMessage: message_helper_functions.CHECK_USER_JOIN_MESSAGE(text) || message_helper_functions.CHECK_USER_LEFT_MESSAGE(text),
+      isUserLeftMessage: message_helper_functions.CHECK_USER_LEFT_MESSAGE(text),
+      isUserJoinMessage: message_helper_functions.CHECK_USER_JOIN_MESSAGE(text),
+      isPrivateRoom: extra?.room?.type !== room_types.MEETING
     }
   }
 }

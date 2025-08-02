@@ -20,17 +20,17 @@ export const startPeerConnection = (socket, username, roomId = '') => {
       audio: false,
     }).then(hostStream => {
         localStream = hostStream;
-        //addVideoStream(hostVideoElement, hostStream, true);
-        socket.emit("joinRoom", { username, roomId, userId: id });
+        addVideoStream(hostVideoElement, hostStream, true);
+        socket.emit("join-room", { username, roomId, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
           const userVideoElement = document.createElement('video');
           call.on("stream", userStream => {
-            //addVideoStream(userVideoElement, userStream, false);
+            addVideoStream(userVideoElement, userStream, false);
           });
         });
         socket.on('user-joined', userId => {
-          //connectToNewUser(peer, userId, hostStream)
+          connectToNewUser(peer, userId, hostStream)
         });
       });
   });
