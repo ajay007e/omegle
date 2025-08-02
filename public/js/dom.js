@@ -27,12 +27,14 @@ export const bindLeaveButtonListener = (element, action) => {
 }
 
 export const outputMessage = (message) => {
-  if (message.info.isUserActionMessage) {
+  console.log(message.info)
+  if (message.info.isUserActionMessage && message.info.isPrivateRoom) {
     chatMessageContainer.innerHTML = "";
   } 
 
+  if (!message.info.isPrivateRoom && message.info.isUserWaiting) return;
   chatMessageContainer.prepend(generateMessageDiv(message))
-  chatMessageInputSection.disabled = message.info.isUserWaiting;
+  chatMessageInputSection.disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 
   if (message.info.isUserLeftMessage){
@@ -53,12 +55,12 @@ const generateMessageDiv = (message) => {
     } else if (message.info.isSystemGenerated) {
       messageDiv.classList.add("center");
     } else {
-      infoParagraphTag.innerText = "Stranger";
+      infoParagraphTag.innerText = message.username;
     }
     
     if (message.info.isUserActionMessage) {
       messageDiv.classList.add("disappearing"); 
-      messageDiv.addEventListener("animationed", () => messageDiv.remove());
+      messageDiv.addEventListener("animationend", () => messageDiv.remove());
     }
 
 
@@ -175,4 +177,57 @@ export const toggleControlBtn = (kind) => {
   } else {
     audioControlBtn.classList.toggle("enabled");
   }
+}
+
+
+
+
+
+
+
+export const sideBarToggle = () => {
+  const chatBtn = document.getElementById('btn-chat');
+  const participantsBtn = document.getElementById('btn-participants');
+  const chatSidebar = document.getElementById('chat-sidebar');
+  const participantsSidebar = document.getElementById('participants-sidebar');
+  const container = document.querySelector('.room-container');
+
+  const showSidebar = (type) => {
+    // Hide all sidebars
+    chatSidebar.classList.remove('visible');
+    participantsSidebar.classList.remove('visible');
+    container.classList.remove('sidebar-visible');
+
+    if (type === 'chat') {
+      chatSidebar.classList.add('visible');
+      container.classList.add('sidebar-visible');
+    } else if (type === 'participants') {
+      participantsSidebar.classList.add('visible');
+      container.classList.add('sidebar-visible');
+    }
+  }
+
+  const toggleSidebar = (type) => {
+    const isChatVisible = chatSidebar.classList.contains('visible');
+    const isParticipantsVisible = participantsSidebar.classList.contains('visible');
+
+    if (type === 'chat') {
+      if (isChatVisible) {
+        chatSidebar.classList.remove('visible');
+        container.classList.remove('sidebar-visible');
+      } else {
+        showSidebar('chat');
+      }
+    } else if (type === 'participants') {
+      if (isParticipantsVisible) {
+        participantsSidebar.classList.remove('visible');
+        container.classList.remove('sidebar-visible');
+      } else {
+        showSidebar('participants');
+      }
+    }
+  }
+
+  chatBtn.addEventListener('click', () => toggleSidebar('chat'));
+  participantsBtn.addEventListener('click', () => toggleSidebar('participants'));
 }

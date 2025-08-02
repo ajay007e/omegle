@@ -1,38 +1,56 @@
 const {
-  rearrangeRoomWhenUserLeaves,
-  getRoomForUser
+  getUsersByRoom,
+  getUsersCountInRoom,
+  getUserById,
+  removeUser,
+  addUser
+} = require("./database");
+
+const {
+  getRoomForUser,
+  handleRoomWhenUserLeaves
 } = require("./rooms")
 
+const getRandomUserName = (username, type) => {
+  if (type !== 'meeting') return username;
 
-const users = [];
+  const adjectives = [
+    "Agile", "Brave", "Calm", "Daring", "Eager", "Fancy", "Gentle", "Happy", "Ideal",
+    "Jolly", "Kind", "Lively", "Merry", "Nice", "Optimistic", "Proud", "Quick",
+    "Relaxed", "Silly", "Tidy", "Upbeat", "Vibrant", "Witty", "Xenial", "Young", "Zealous",
+    "Bold", "Curious", "Fearless", "Graceful", "Humble", "Intrepid", "Joyful", "Keen",
+    "Lucid", "Mindful", "Nifty", "Open", "Playful", "Quirky", "Resilient", "Serene", "Thoughtful",
+    "Unique", "Valiant", "Wise", "Zesty", "Resourceful", "Charming", "Stoic", "Smiling"
+  ];
 
-const whenUserJoins = (id, username, userId) => {
-  const {room, isAlone} = getRoomForUser()
-  const user = {id, username, room, isAlone, userId};
-  users.push(user);
-  return user;
+  const names = [
+    "Einstein", "Curie", "Newton", "Tesla", "Hopper", "Lovelace", "Darwin", "Turing",
+    "Galileo", "Kepler", "Feynman", "Bohr", "Hawking", "Fermi", "Goodall", "Boyle",
+    "Franklin", "Noether", "Bernerslee", "Shannon", "Rubin", "Rosalind", "Hypatia", "Raman",
+    "Archimedes", "Pascal", "Gauss", "Alhazen", "Leibniz", "Euclid", "Planck", "Sagan",
+    "Dijkstra", "Kalam", "Meitner", "Banach", "Elion", "Vermeer", "Leavitt", "Dirac", "Mendeleev",
+    "Watson", "Crick", "Boole", "Descartes", "Kapitsa", "Milankovic", "Joliot", "Mirzakhani", "Babbage"
+  ];
+
+  const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const name = names[Math.floor(Math.random() * names.length)];
+  return `${adj} ${name}`;
+}
+
+const whenUserJoins = (id, roomId, username, userId) => {
+  const {room, isAlone, type} = getRoomForUser(roomId);
+  return addUser({id, username: getRandomUserName(username, type), room, isAlone, userId});
 }
 
 const whenUserLeaves = (id) => {
-  const userIdx = getUserIdx(id);
-  if (userIdx !== -1) {
-    userRoom = getUserRoomByIdx(userIdx)
-    rearrangeRoomWhenUserLeaves(userRoom);
-    return users.splice(userIdx, 1)[0];
+  const user = getUserById(id);
+  if (user) {
+    handleRoomWhenUserLeaves(user.room);
+    return removeUser(user.id);
   }
 }
 
-const getUsersByRoom = (room) => users.filter((user) => user.room === room);
-
-const getUserRoomByIdx = (userIdx) => users[userIdx].room;
-
-const getUserIdx = (id) => users.findIndex((user) => user.id === id);
-
-const getCurrentUser = (id) => users.find((user) => user.id === id);
-
 module.exports = {
   whenUserJoins,
-  getCurrentUser,
-  whenUserLeaves,
-  getUsersByRoom,
+  whenUserLeaves
 };

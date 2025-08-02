@@ -1,19 +1,19 @@
 const moment = require('moment');
-const { waitingMessage, strangerLeftMessage, strangerJoinMessage } = require("./constants")
+const { waitingMessage, checkStrangerLeftMessage, checkStrangerJoinMessage } = require("./constants")
 
-const formatMessage = (username, text, isSystemGenerated=true, id=1) => {
+const formatMessage = (username, text, extra = {isSystemGenerated:true}) => {
   return {
-    username,
+    username: username === "Anonymous" ? "Stranger" : username,
     text,
     time: moment().format('h:mm a'),
-    id,
+    id: extra?.id ?? 1,
     info: {
-      isSystemGenerated,
+      isSystemGenerated: extra?.isSystemGenerated ?? true,
       isUserWaiting: text === waitingMessage,
-      isUserActionMessage: text === strangerLeftMessage || text === strangerJoinMessage,
-      isUserLeftMessage: text === strangerLeftMessage,
-      isUserJoinMessage: text === strangerJoinMessage
-
+      isUserActionMessage: checkStrangerJoinMessage(text) || checkStrangerLeftMessage(text),
+      isUserLeftMessage: checkStrangerLeftMessage(text),
+      isUserJoinMessage: checkStrangerJoinMessage(text),
+      isPrivateRoom: extra?.room?.type !== 'meeting' 
     }
   }
 }

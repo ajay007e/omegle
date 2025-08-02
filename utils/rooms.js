@@ -1,47 +1,77 @@
-const rooms = [];
-const activeRooms = [];
+const {
+  addRoom,
+  removeRoom,
+  getRoomById,
+  getRoomsByType,
+  getUsersByRoom,
+  getRandomRoomByType,
+  updateRoomTypeById
+} = require("./database");
 
-const rearrangeRoomWhenUserLeaves = (userRoom) => {
-    if (rooms.includes(userRoom)) {
-      removeElementFromArray(rooms, userRoom)
-    } else {
-      rooms.push(userRoom);
-    }
-    removeElementFromArray(activeRooms, userRoom)
-}
-const getRoomForUser = () => {
-  let room;
-  let isAlone;
-  if (rooms.length === 0) {
-    room = getAvailableRoom() 
-    rooms.push(room);
-    isAlone=true;
-  } else {
-    room = rooms.shift();
-    isAlone=false;
-    activeRooms.push(room);
-  }
-  return {room, isAlone}
-}
+
+const isStringEmpty = (str) => str === undefined || str.trim() === ''; 
 
 const randomRoom = () => Math.floor(Math.random() * 1000);
 
-const removeElementFromArray = (array, item) => {
-  const idx = array.indexOf(item);
-  if (idx !== -1) {
-    array.splice(idx, 1)
-  }
-}
-
-const getAvailableRoom = () => {
+const getAvailableWaitingRoom = () => {
   room = randomRoom();
-  while (activeRooms.includes(room)) {
+  while (getRoomsByType('private').includes(room)) {
     room = randomRoom();
   }
   return room;
 }
 
+const getPrivateRoom = () => {
+  let room;
+  let isAlone;
+  let type;
+  if (getRoomsByType('waiting').length === 0) {
+    room = getAvailableWaitingRoom();
+    addRoom(room, 'waiting');
+    isAlone=true;
+    type = 'waiting';
+  } else {
+    room = getRandomRoomByType('waiting').id;
+    isAlone=false;
+    updateRoomTypeById(room, 'private');
+    type = 'private';
+  }
+  return {room, isAlone, type};
+}
+
+const getMeetingRoom = (roomId) => {
+    let isAlone;
+    if (getRoomById(roomId)) {isAlone = false}
+    else {
+      isAlone = true;
+      addRoom(roomId, 'meeting');
+    }
+    return {room: roomId, isAlone, type: 'meeting'};
+}
+
+
+const getRoomForUser = (roomId) => {
+  if (isStringEmpty(roomId)) {
+    return getPrivateRoom(); 
+  } else {
+    return getMeetingRoom(roomId);   
+  }
+}
+
+const handleRoomWhenUserLeaves = (userRoom) => {
+    const roomType = getRoomById(userRoom)?.type; 
+    if (roomType === 'waiting') {
+      removeRoom(userRoom);
+    }
+    if (roomType === 'private') {
+      updateRoomTypeById(userRoom, 'waiting');
+    }
+    if (roomType === 'meeting' && getUsersByRoom(userRoom).length == 1) {
+      removeRoom(userRoom);
+    }
+}
+
 module.exports = {
   getRoomForUser,
-  rearrangeRoomWhenUserLeaves
+  handleRoomWhenUserLeaves
 }

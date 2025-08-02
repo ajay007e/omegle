@@ -1,0 +1,55 @@
+<div class="room-container">
+    <main id="video-container"></main>
+    <aside id="chat-sidebar" class="chat-sidebar">
+          <section class="chat-right-container">
+            <div class="chat-messages-area"></div>
+            <div class="chat-form-container">
+              <form id="chat-form">
+                <input
+                  id="msg"
+                  type="text"
+                  placeholder="Enter Message"
+                  required
+                  autocomplete="off"
+                />
+                <button class="message-send-btn">
+                  <i class="fas fa-paper-plane"></i>
+                </button>
+              </form>
+            </div>
+          </section>
+    </aside>
+    <aside id="participants-sidebar" class="participants-sidebar">
+      <div class="people-header">
+        <h2>People</h2>
+      </div>
+
+      <ul class="people-list" id="people-list">
+        <!-- Participants injected by JS -->
+      </ul>
+
+      <!-- ⬇ Sticky footer: room info -->
+      <div class="room-info sticky-room-info">
+        <span class="label">Room code</span>
+        <div class="room-code">
+          <span id="room-code-text"><%= roomId %></span>
+          <button id="copy-room-code"><i class="fa fa-clipboard"></i></button>
+        </div>
+      </div>
+    </aside>
+    <div id="control-panel">
+        <button id="btn-mic" class="enabled"><i class="fas fa-microphone"></i></button>
+        <button id="btn-camera" class="disabled"><i class="fas fa-video"></i></button>
+        <button id="btn-share" class="info"><i class="fas fa-laptop"></i></button>
+        <button id="btn-chat"><i class="fas fa-comment"></i></button>
+        <button id="btn-participants"><i class="fas fa-users"></i></button>
+    </div>
+</div>
+
+<script>
+  window.APP_CONTEXT = {
+    page: "<%= page %>",
+    username: "<%= username %>",
+    roomId: "<%= roomId %>"
+  };
+</script>

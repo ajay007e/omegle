@@ -101,6 +101,7 @@
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
+  text-decoration: none;
 }
 
 .room-input {

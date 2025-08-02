@@ -1,10 +1,9 @@
 const formatMessage = require("./messages");
 const {
   whenUserJoins,
-  getCurrentUser,
   whenUserLeaves,
-  getUsersByRoom,
 } = require("./users");
+const { getUsersByRoom, getRoomById, getUserById } = require("./database")
 const {
   botName,
   waitingMessage,
@@ -16,17 +15,16 @@ const {
 
 const socket = (io) => {
   io.on("connection", (socket) => {
-    socket.on("joinRoom", ({ username, userId }) => {
-      const user = whenUserJoins(socket.id, username, userId);
+    socket.on("joinRoom", ({ username, roomId, userId }) => {
+      const user = whenUserJoins(socket.id, roomId, username, userId);
       socket.join(user.room);
-
+      const room = getRoomById(user.room);
       if (user.isAlone) {
-        socket.emit(infoMessage, formatMessage(botName, waitingMessage));
+        socket.emit(infoMessage, formatMessage(botName, waitingMessage, {room, user}));
       } else {
-        socket.emit(infoMessage, formatMessage(botName, strangerJoinMessage));
+        socket.emit(infoMessage, formatMessage(botName, strangerJoinMessage(user.username), {room, user}));
       }
-
-      socketBroadcast(socket, user.room, infoMessage, formatMessage(botName, strangerJoinMessage));
+      socketBroadcast(socket, user.room, infoMessage, formatMessage(botName, strangerJoinMessage(user.username), {room, user}));
       socketBroadcast(socket, user.room, 'user-joined', userId);
 
       io.to(user.room).emit(roomUsers, {
@@ -36,16 +34,26 @@ const socket = (io) => {
     });
 
     socket.on("chatMessage", (msg) => {
-      const user = getCurrentUser(socket.id);
-      io.to(user.room).emit("message", formatMessage(user.username, msg, false, socket.id));
+      const user = getUserById(socket.id);
+      io.to(user.room).emit("message", 
+        formatMessage(
+          user.username,
+          msg, {
+            room: getRoomById(user.room), 
+            user, 
+            isSystemGenerated: false,
+            id: socket.id
+          })
+      );
     });
 
     socket.on("disconnect", () => {
       const user = whenUserLeaves(socket.id);
+      const room = getRoomById(user.room);
       if (user) {
         io.to(user.room).emit(
           infoMessage,
-          formatMessage(botName, strangerLeftMessage)
+          formatMessage(botName, strangerLeftMessage(user.username), {user, room})
         );
 
         io.to(user.room).emit(roomUsers, {
@@ -57,7 +65,7 @@ const socket = (io) => {
 
         io.to(user.room).emit(
           infoMessage,
-          formatMessage(botName, waitingMessage)
+          formatMessage(botName, waitingMessage, {user, room})
         );
       }
     });

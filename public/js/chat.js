@@ -8,12 +8,12 @@ export const setupSocket = (socket) => {
   });
 
   socket.on("message", (message) => {
-    message["isHostGenerated"] = socket.id === message.id;
+    message.info["isHostGenerated"] = socket.id === message.id;
     outputMessage(message);
   });
 
   socket.on("info-message", (message) => {
-    message["isHostGenerated"] = socket.id === message.id;
+    message.info["isHostGenerated"] = socket.id === message.id;
     outputMessage(message);
   });
 

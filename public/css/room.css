@@ -1,0 +1,185 @@
+
+/* Container setup */
+.room-container {
+  position: relative;
+  height: calc(100vh - 8.5rem);
+  display: flex;
+  overflow: hidden;
+}
+
+/* Main video area */
+#video-container {
+  flex: 1;
+  transition: width 0.3s ease;
+  /* when sidebar visible, width changes with JS */
+}
+
+/* Sidebars */
+.chat-sidebar,
+.participants-sidebar {
+  position: absolute;
+  right:0%;
+  height: calc(100vh - 8.5rem);
+  width: 30%;
+  max-width: 400px;
+  color: #eee;
+  background: #f0f0f0;
+  overflow-y: auto;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+}
+
+/* Hidden sidebars */
+.chat-sidebar,
+.participants-sidebar {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Visible sidebar */
+.chat-sidebar.visible,
+.participants-sidebar.visible {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.people-header {
+  padding: 0.7rem;
+  border-bottom: 0.1rem solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.people-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* Sticky footer */
+.sticky-room-info {
+  padding: 1rem;
+  border-top: 0.1rem solid #ddd;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.room-info .label {
+  font-size: 0.8rem;
+  color: #aaa;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.room-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #1f1f1f;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6); /* inner shadow */
+}
+
+.room-code button {
+  opacity: 0;
+}
+
+.room-code:hover button {
+  opacity: 1;
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Control panel */
+#control-panel {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+/* Show control panel on container hover */
+.room-container:hover #control-panel {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#control-panel button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: none;
+  z-index: 3;
+  transition: background 0.3s;
+  padding: 0; /* remove default padding for circle */
+  background: #555; /* gray */
+}
+#control-panel button:hover {
+  background: #444;
+}
+
+/* Mic/Camera off, or inactive state */
+#control-panel .disabled {
+  background: #F44336; /* red */
+}
+#control-panel .disabled:hover {
+  background: #d32f2f;
+}
+
+/* Mic/Camera on, or active state */
+#control-panel .enabled {
+  background: #1FA43F; /* green */
+}
+#control-panel .enabled:hover {
+  background: #158030;
+}
+
+/* Chat, screen share, etc. */
+#control-panel .info {
+  background: #2196F3; /* blue */
+}
+#control-panel .info:hover {
+  background: #1976d2;
+}
+
+/* Warning or attention (e.g. screen recording) */
+#control-panel .warning {
+  background: #FF9800; /* orange */
+}
+#control-panel .warning:hover {
+  background: #fb8c00;
+}
+
+.room-container.sidebar-visible #video-container {
+  width: 70%;
+}
+

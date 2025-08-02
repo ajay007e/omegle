@@ -4,7 +4,7 @@ const userStremDatabase = {};
 
 let localStream = null;
 
-export const startPeerConnection = (socket, username) => {
+export const startPeerConnection = (socket, username, roomId = '') => {
   const peer = new Peer(undefined, {
     host: "/",
     port: "5001"
@@ -17,20 +17,20 @@ export const startPeerConnection = (socket, username) => {
         width: {min: 640, ideal: 1920, max: 1920},
         height: {min: 480, ideal: 1080, max: 1080},
       },
-      audio: false
+      audio: false,
     }).then(hostStream => {
         localStream = hostStream;
-        addVideoStream(hostVideoElement, hostStream, true);
-        socket.emit("joinRoom", { username, userId: id });
+        //addVideoStream(hostVideoElement, hostStream, true);
+        socket.emit("joinRoom", { username, roomId, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
           const userVideoElement = document.createElement('video');
           call.on("stream", userStream => {
-            addVideoStream(userVideoElement, userStream, false);
+            //addVideoStream(userVideoElement, userStream, false);
           });
         });
         socket.on('user-joined', userId => {
-          connectToNewUser(peer, userId, hostStream)
+          //connectToNewUser(peer, userId, hostStream)
         });
       });
   });

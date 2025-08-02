@@ -1,6 +1,7 @@
 import { setupSocket, sendMessage } from "./chat.js"
 import { startPeerConnection } from "./video.js";
 import { 
+  sideBarToggle,
   bindActionToggleButtonListener, 
   bindLeaveButtonListener, 
   bindChatMessageInputListener 
@@ -20,6 +21,16 @@ window.addEventListener("DOMContentLoaded", () => {
     const socket = io();
     setupSocket(socket);
     startPeerConnection(socket, window.APP_CONTEXT.username);
+    bindChatMessageInputListener(chatMessageInput, (message) => {sendMessage(socket, message)});
+  }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.APP_CONTEXT?.page === "room") {
+    const socket = io();
+    setupSocket(socket);
+    startPeerConnection(socket, window.APP_CONTEXT.username, window.APP_CONTEXT.roomId);
+    sideBarToggle();
     bindChatMessageInputListener(chatMessageInput, (message) => {sendMessage(socket, message)});
   }
 });
