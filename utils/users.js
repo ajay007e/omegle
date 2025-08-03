@@ -18,7 +18,7 @@ const {
 
 const whenUserJoins = (id, roomId, username, userId) => {
   const {room, isAlone, type} = getRoomForUser(roomId);
-  return addUser({id, username: getRandomUserName(username, type), room, isAlone, userId});
+  return addUser({id, username: getRandomUserName(username, type), room, isAlone, isHost: isAlone, userId});
 }
 
 const whenUserLeaves = (id) => {

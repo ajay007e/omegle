@@ -1,7 +1,8 @@
 <div id="toast-container"></div>
 
 <script>
-  function showToast(message, type = 'error') {
+  // Define globally accessible toast function
+  window.showToast = function(message, type = 'error') {
     const toastContainer = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.classList.add('toast', type);
@@ -12,12 +13,12 @@
     setTimeout(() => {
       toast.remove();
     }, 3500);
-  }
+  };
 
   // Show toast on page load if error exists
   <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
     window.addEventListener('DOMContentLoaded', () => {
-      showToast("<%= errorMessage %>", 'error');
+      window.showToast("<%= errorMessage %>", 'error');
     });
   <% } %>
 </script>

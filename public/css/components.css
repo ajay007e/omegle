@@ -1,36 +1,67 @@
-
+/* Toast container */
 #toast-container {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 2rem;
+  right: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  z-index: 1000;
+  gap: 0.75rem;
+  z-index: 9999;
 }
 
+/* Base toast */
 .toast {
-  background-color: #dc3545;
-  color: #fff;
   padding: 12px 18px;
   border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  color: #fff;
   font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transform: translateY(20px);
   animation: slideIn 0.4s forwards, fadeOut 0.4s forwards 3s;
+  min-width: 200px;
+  max-width: 320px;
+  pointer-events: none;
 }
 
+/* Type: error */
+.toast.error {
+  background-color: #dc3545;
+}
+
+/* Type: success */
+.toast.success {
+  background-color: #28a745;
+}
+
+/* Type: info */
+.toast.info {
+  background-color: #17a2b8;
+}
+
+/* Type: warning */
+.toast.warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+/* Slide in animation */
 @keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Fade out animation */
 @keyframes fadeOut {
   to {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px);
   }
 }
+

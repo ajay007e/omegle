@@ -42,13 +42,10 @@ const getPrivateRoom = () => {
 }
 
 const getMeetingRoom = (roomId) => {
-    let isAlone;
-    if (getRoomById(roomId)) {isAlone = false}
-    else {
-      isAlone = true;
+    if (!getRoomById(roomId)) {
       addRoom(roomId, room_types.MEETING);
     }
-    return {room: roomId, isAlone, type: room_types.MEETING};
+    return {room: roomId, isAlone:getUsersByRoom(roomId).length === 0, type: room_types.MEETING};
 }
 
 

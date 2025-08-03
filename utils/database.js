@@ -4,11 +4,26 @@ const addUser = (user) => {users.push(user); return user}
 const removeUser = (userId) => {
   const idx = users.findIndex(user => user.id === userId);
   if (idx !== -1) {
+    updateHost(users[idx]);
     return users.splice(idx, 1)[0];
   }
 };
 const getUserById = (userId) => users.find(user => user.id === userId);
 const getUsersByRoom = (room) => users.filter(user => user.room === room);
+const getRandomUserByRoom = (room) => {
+  const usersFromGivenRoom = users.filter(user => user.room === room);
+  if (usersFromGivenRoom.length === 0) return null;
+  const randomIndex = Math.floor(Math.random() * usersFromGivenRoom.length);
+  return usersFromGivenRoom[randomIndex];
+}
+const updateHost = (host) => {
+  if (!host.isHost) return;
+  let newHost = getRandomUserByRoom(host.room);
+  while (newHost.id === host.id) {
+    newHost = getRandomUserByRoom(host.room);
+  }
+  users[users.findIndex(user => user.id === newHost.id)].isHost = true;
+}
 
 
 const rooms = [];
