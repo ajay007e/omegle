@@ -1,12 +1,6 @@
 const formatMessage = require("./messages");
-
-const {
-  whenUserJoins,
-  whenUserLeaves,
-} = require("./users");
-
+const { whenUserJoins, whenUserLeaves } = require("./users");
 const { getUsersByRoom, getRoomById, getUserById } = require("./database")
-
 const {
   global_constants,
   message_templates,
@@ -22,15 +16,42 @@ const socket = (io) => {
       socket.join(user.room);
       const room = getRoomById(user.room);
       if (user.isAlone) {
-        socket.emit(socket_events.INFO_MESSAGE, formatMessage(global_constants.BOT_NAME, message_templates.WAITING_MESSAGE, {room, user}));
+        socket.emit(
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_templates.WAITING_MESSAGE,
+            {room, user}
+          )
+        );
       } else {
-        socket.emit(socket_events.INFO_MESSAGE, formatMessage(global_constants.BOT_NAME, message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username), {room, user}));
+        socket.emit(
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username),
+            {room, user}
+          )
+        );
       }
-      socketBroadcast(socket, user.room, socket_events.INFO_MESSAGE, formatMessage(global_constants.BOT_NAME, message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username), {room, user}));
-      socketBroadcast(socket, user.room, socket_events.USER_JOINED, userId);
-
+      socketBroadcast(
+        socket, 
+        user.room, 
+        socket_events.INFO_MESSAGE,
+        formatMessage(
+          global_constants.BOT_NAME,
+          message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username), 
+          {room, user}
+        )
+      );
+      socketBroadcast(
+        socket,
+        user.room,
+        socket_events.USER_JOINED,
+        userId
+      );
       io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
-        room: user.room,
+        room: getRoomById(user.room),
         users: getUsersByRoom(user.room),
       });
     });
@@ -55,11 +76,15 @@ const socket = (io) => {
       if (user) {
         io.to(user.room).emit(
           socket_events.INFO_MESSAGE,
-          formatMessage(global_constants.BOT_NAME, message_helper_functions.GENERATE_USER_LEFT_MESSAGE(user.username), {user, room})
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_helper_functions.GENERATE_USER_LEFT_MESSAGE(user.username),
+            {user, room}
+          )
         );
 
         io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
-          room: user.room,
+          room: getRoomById(user.room),
           users: getUsersByRoom(user.room),
         });
 
@@ -67,7 +92,11 @@ const socket = (io) => {
 
         io.to(user.room).emit(
           socket_events.INFO_MESSAGE,
-          formatMessage(global_constants.BOT_NAME, message_templates.WAITING_MESSAGE, {user, room})
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_templates.WAITING_MESSAGE,
+            {user, room}
+          )
         );
       }
     });

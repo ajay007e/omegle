@@ -1,4 +1,9 @@
-import { generateVideoPlayer, toggleControlBtn, appendVideoPlayer, cleanUpEmptyVideoFrames } from "./dom.js";
+import { 
+  generateVideoPlayer,
+  toggleControlBtn,
+  appendVideoPlayer,
+  cleanUpEmptyVideoFrames 
+} from "./dom.js";
 
 const userStremDatabase = {};
 

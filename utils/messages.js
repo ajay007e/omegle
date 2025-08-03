@@ -1,5 +1,10 @@
 const moment = require('moment');
-const { global_constants, message_templates, message_helper_functions, room_types } = require("./constants")
+const { 
+  global_constants, 
+  message_templates,
+  message_helper_functions,
+  room_types 
+} = require("./constants")
 
 const formatMessage = (username, text, extra = {isSystemGenerated:true}) => {
   return {

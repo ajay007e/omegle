@@ -10,9 +10,7 @@ const {
 
 const { generateRandomNumber, isStringEmpty } = require("./helper")
 
-const {
-  room_types
-} = require("./constants")
+const { room_types } = require("./constants")
 
 
 const getAvailableWaitingRoom = () => {

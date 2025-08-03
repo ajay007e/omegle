@@ -18,10 +18,14 @@ const getRandomUserByRoom = (room) => {
 }
 const updateHost = (host) => {
   if (!host.isHost) return;
-  let newHost = getRandomUserByRoom(host.room);
-  while (newHost.id === host.id) {
+  let newHost;
+  let attempts = 0;
+  do {
     newHost = getRandomUserByRoom(host.room);
-  }
+    attempts++;
+    if (attempts > 10000) throw new Error("Too many attempts to find new host.");
+  } while(newHost.id === host.id);
+  // direct mutation of users collection
   users[users.findIndex(user => user.id === newHost.id)].isHost = true;
 }
 

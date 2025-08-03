@@ -1,5 +1,10 @@
 const router = require("express").Router();
-const { isValidRoomCode, isStringEmpty, getUniqueRoomCode, isExistingRoomCode } = require("../utils/helper")
+const { 
+    isValidRoomCode,
+    isStringEmpty,
+    getUniqueRoomCode,
+    isExistingRoomCode 
+} = require("../utils/helper")
 
 router.get("/", (req, res, nxt) => {
     const errorMessage = req.query.error;
@@ -30,7 +35,12 @@ router.get("/:roomId", (req, res, nxt) => {
             roomId: req.params.roomId
         });
     } else {
-        res.redirect('/?error=' + encodeURIComponent('Room does not exist. Please check the code or create a new room'));
+        res.redirect(
+            '/?error=' + 
+                encodeURIComponent(
+                    'Room does not exist. Please check the code or create a new room'
+                )
+        );
     }
 });
 

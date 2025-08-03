@@ -1,11 +1,16 @@
-import { outputMessage, outputRoomName, outputUsers } from "./dom.js";
 import { closePeerConnection } from "./video.js";
+import { outputMessage, outputRoomName, outputUsers } from "./dom.js";
 
 export const setupSocket = (socket) => {
   socket.on("room-and-users", ({ room, users }) => {
-    outputRoomName(room);
-    const isUserHost = users.find(user => user.id === socket.id).isHost;
-    outputUsers(users.map(user => ({...user, isUser: user.id === socket.id})), isUserHost);
+    if(room.type === 'meeting') {
+      outputRoomName(room);
+      const isUserHost = users.find(user => user.id === socket.id).isHost;
+      outputUsers(
+        users.map(user => ({...user, isUser: user.id === socket.id})), 
+        isUserHost
+      );
+    }
   });
 
   socket.on("message", (message) => {

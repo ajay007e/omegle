@@ -1,5 +1,3 @@
-
-
 const botName = "ChatCord Bot";
 const waitingMessage = "Waiting for someone to join...";
 const strangerJoinMessage = (username) => `${username} has joined the chat`;

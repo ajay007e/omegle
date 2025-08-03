@@ -1,40 +1,73 @@
 import { toggleControl, isTrackEnabled } from "./video.js";
 
-const chatMessageContainer = document.querySelector(".chat-messages-area");
-const chatRoomSection = document.getElementById("room-name");
-const chatRoomUsersSection = document.getElementById("users");
-const chatMessageInputSection = document.getElementById("msg");
-const videoSection = document.getElementById("video-section");
-const welcomeSection = document.querySelector(".join-container");
-const chatSection = document.querySelector(".chat-container");
-const chatMessageInput = document.getElementById("chat-form");
-
+// GLOBAL VARIABLES
 let global_users_collection = [];
 
 
+// BINDING FUNCTION FOR script.js
 export const bindActionToggleButtonListener = (element, action) => {
   element?.addEventListener("click", () => handleChatStartToggle(action));
 }
 
-export const bindStartChatButtonListener = (element, action) => {
-  element?.addEventListener("click", () => handleStartChat(action));
-}
+const handleChatStartToggle = (action) => {
+  document.getElementById("start-chat-btn").classList.toggle("hidden");
+  document.getElementById("join-room-container").classList.toggle("hidden");
+  action();
+};
 
 export const bindChatMessageInputListener = (element, action) => {
   element?.addEventListener("submit", (e) => handleMessageSubmit(e, action));
+}
+
+const handleMessageSubmit = (e, action) => {
+  e.preventDefault();
+  let msg = e.target.elements.msg.value.trim();
+  if (msg) {
+    action(msg);
+    e.target.elements.msg.value = "";
+    e.target.elements.msg.focus();
+  }  
 }
 
 export const bindLeaveButtonListener = (element, action) => {
   element?.addEventListener("click", () => handleLeaveRoom(action));
 }
 
+const handleLeaveRoom = (leave) => {
+  const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
+  if (leaveRoom) {
+    leave()
+  }
+}
+
+
+// UI OUTPUT FUNCTIONS FOR chat.js
+export const outputRoomName = (room) => {
+  const href = window.location.href;
+  document.getElementById('room-code-text').textContent = href;
+}
+
+export const outputUsers = (users, isUserHost) => {
+  global_users_collection = users.map(user => ({...user, isUserHost}));
+  renderUsers(users);
+}
+
+const renderUsers = (users) => {
+  const peopleList = document.getElementById('people-list');
+  peopleList.innerHTML = "";
+  users.forEach((user) => {
+    peopleList.appendChild(generatePersonDiv(user));
+  });
+}
+
 export const outputMessage = (message) => {
+  const chatMessageContainer = document.querySelector(".chat-messages-area");
   if (message.info.isUserActionMessage && message.info.isPrivateRoom) {
     chatMessageContainer.innerHTML = "";
   } 
   if (!message.info.isPrivateRoom && message.info.isUserWaiting) return;
   chatMessageContainer.prepend(generateMessageDiv(message))
-  chatMessageInputSection.disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
+  document.getElementById("chat-message-input").disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 
   if (message.info.isUserLeftMessage){
@@ -76,24 +109,8 @@ const generateMessageDiv = (message) => {
     return messageDiv;
 }
 
-export const outputRoomName = (room) => {
-  const href = window.location.href;
-  document.getElementById('room-code-text').textContent = href;
-}
 
-export const outputUsers = (users, isUserHost) => {
-  global_users_collection = users.map(user => ({...user, isUserHost}));
-  renderUsers(users);
-}
-
-const renderUsers = (users) => {
-  const peopleList = document.getElementById('people-list');
-  peopleList.innerHTML = "";
-  users.forEach((user) => {
-    peopleList.appendChild(addPersonToList(user));
-  });
-}
-
+// UI OUTPUT FUNCTIONS FOR video.js
 export const generateVideoPlayer = (isControlRequired, video) => {
   const videoPlayer = document.createElement("div");
   videoPlayer.classList.add("video-frame");
@@ -126,7 +143,6 @@ export const generateVideoPlayer = (isControlRequired, video) => {
   return videoPlayer;
 }
 
-
 export const cleanUpEmptyVideoFrames = () => {
   // since peer.js will trigger stream event from call twice, video-frame divs
   // will be created without children; to remove the empty video-frames this utility
@@ -139,41 +155,13 @@ export const cleanUpEmptyVideoFrames = () => {
 }
 
 export const appendVideoPlayer = (videoPlayer) => {
-  videoSection.appendChild(videoPlayer);
+  document.getElementById("video-section").appendChild(videoPlayer);
   if (videoPlayer.id === 'user-vf') {
     document.getElementById("host-vf").classList.add("mini");
   }
 }
 
-const handleLeaveRoom = (leave) => {
-  const leaveRoom = confirm("Are you sure you want to leave the chatroom?");
-  if (leaveRoom) {
-    leave()
-  }
-}
-
-const handleMessageSubmit = (e, action) => {
-  e.preventDefault();
-  let msg = e.target.elements.msg.value.trim();
-  if (msg) {
-    action(msg);
-    e.target.elements.msg.value = "";
-    e.target.elements.msg.focus();
-  }  
-}
-
-const handleStartChat = (e, action) => {
-  action('');
-}
-
-const handleChatStartToggle = (action) => {
-  document.getElementById("start-chat-btn").classList.toggle("hidden");
-  document.getElementById("join-room-container").classList.toggle("hidden");
-  action();
-};
-
 export const toggleControlBtn = (kind) => {
-
   const audioControlBtn = document.getElementById("audio-cntl");
   const camaraControlBtn = document.getElementById("camara-cntl");
 
@@ -185,32 +173,21 @@ export const toggleControlBtn = (kind) => {
 }
 
 
-
-
-
-
-export const sideBarToggle = () => {
+// PAGE CONFIGURATION FUNCTION FOR room PAGE
+export const setupSideBar = () => {
   const container = document.querySelector('.room-container');
   const sidebar = document.getElementById('video-sidebar');
   const sidebarBtn = document.getElementById('btn-sidebar');
   const panels = document.querySelectorAll('.sidebar-panel');
   const navButtons = document.querySelectorAll('.nav-btn');
 
-  // Helper to show only one panel
   const showSidebarPanel = (targetId) => {
-    // Hide all panels
     panels.forEach((panel) => panel.classList.add('hidden'));
-
-    // Show selected panel
     const targetPanel = document.getElementById(targetId);
     if (targetPanel) {
       targetPanel.classList.remove('hidden');
     }
-
-    // Set container as sidebar-visible
     container.classList.add('sidebar-visible');
-
-    // Update active button state
     navButtons.forEach((btn) => {
       if (btn.getAttribute('data-target') === targetId) {
         btn.classList.add('active');
@@ -220,12 +197,10 @@ export const sideBarToggle = () => {
     });
   };
 
-  // Attach event listeners to nav buttons
   navButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
       const target = btn.getAttribute('data-target');
       const isHidden = document.getElementById(target).classList.contains('hidden');
-
       if (isHidden) {
         showSidebarPanel(target);
       }
@@ -245,7 +220,6 @@ export const sideBarToggle = () => {
 
   document.getElementById('people-search-input').addEventListener('input', (e) => {
     const query = e.target.value.trim().toLowerCase();
-
     const filtered = query === '' ? global_users_collection : global_users_collection.filter(user =>
       user.username.toLowerCase().includes(query)
     );
@@ -253,40 +227,7 @@ export const sideBarToggle = () => {
   });
 };
 
-function getInitials(name) {
-  const parts = name.trim().split(' ');
-  const initials = parts.map(p => p[0].toUpperCase()).slice(0, 2).join('');
-  return initials;
-}
-
-const avatarVariants = Array.from({ length: 25 }, (_, i) => `avatar-${i}`);
-
-function hashToAvatarIndex(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return Math.abs(hash) % avatarVariants.length;
-}
-
-function getAvatarClassFromName(name) {
-  const index = hashToAvatarIndex(name);
-  return avatarVariants[index]; // returns avatar-0 to avatar-24
-}
-
-
-
-const handleEditUser = (userId) => {
-  console.log(userId);
-}
-const handleRemoveUser = (userId) => {
-  console.log(userId);
-}
-const handlePinUser = (userId) => {
-  console.log(userId);
-}
-
-const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
+const generatePersonDiv = ({userId, username, isHost, isUser, isUserHost}) => {
   const li = document.createElement('li');
   li.className = 'person-item';
   li.dataset.id = userId;
@@ -336,11 +277,6 @@ const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
   const dropdown = document.createElement('div');
   dropdown.className = 'dropdown-menu hidden';
 
-  // Conditionally add buttons
-  // const pinBtn = `<button class="dropdown-item" onclick="handlePinUser('${userId}')" title="Pin"><i class="fas fa-thumbtack"></i> Pin</button>`;
-  // const editBtn = `<button class="dropdown-item" onclick="handleEditUser('${userId}')" title="Edit name"><i class="fas fa-edit"></i> Edit name</button>`;
-  // const removeBtn = `<button class="dropdown-item" onclick="handleRemoveUser('${userId}')" title="Remove"><i class="fas fa-times"></i> Remove</button>`;
-
   const fragment = document.createDocumentFragment();
 
   // Pin Button
@@ -351,7 +287,7 @@ const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
   pinBtn.addEventListener('click', () => handlePinUser(userId));
   fragment.appendChild(pinBtn);
 
-  // Edit Button (only for current user)
+  // Edit Button
   if (isUser || isUserHost) {
     const editBtn = document.createElement('button');
     editBtn.className = 'dropdown-item';
@@ -361,7 +297,7 @@ const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
     fragment.appendChild(editBtn);
   }
 
-  // Remove Button (only if current user is host)
+  // Remove Button
   if (isUserHost && !isUser) {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'dropdown-item';
@@ -379,14 +315,12 @@ const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
     });
   }
   
-  // Toggle logic
   toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // prevent closing immediately
-    closeAllDropdowns(); // close others first
-    dropdown.classList.toggle('hidden'); // then toggle current one
+    e.stopPropagation();
+    closeAllDropdowns();
+    dropdown.classList.toggle('hidden');
   });
 
-  // Outside click closes everything
   document.addEventListener('click', () => {
     closeAllDropdowns();
   });
@@ -401,4 +335,37 @@ const addPersonToList = ({userId, username, isHost, isUser, isUserHost}) => {
   return li;
 };
 
+// TODO: move to seperate helper.js
+const hashString = (str) => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash);
+}
 
+const getAvatarClassFromName = (name) => {
+  // TODO: assign a constant value to 25
+  return `avatar-${hashString(name) % 25}`; // returns avatar-0 to avatar-24
+}
+
+const getInitials = (name) => {
+  const parts = name.trim().split(' ');
+  const initials = parts.map(p => p[0].toUpperCase()).slice(0, 2).join('');
+  return initials;
+}
+
+// TODO: implement logics for the function
+const handleEditUser = (userId) => {
+  console.log(userId);
+}
+
+// TODO: implement logics for the function
+const handleRemoveUser = (userId) => {
+  console.log(userId);
+}
+
+// TODO: implement logics for the function
+const handlePinUser = (userId) => {
+  console.log(userId);
+}

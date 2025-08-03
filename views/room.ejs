@@ -1,6 +1,5 @@
 <div class="room-container">
     <main id="video-container"></main>
-
     <aside id="video-sidebar" class="video-sidebar">
       <!-- Sections: Only one is visible at a time -->
       <section id="chat-panel" class="sidebar-panel">
@@ -11,7 +10,7 @@
           <div class="chat-messages-area"></div>
           <div class="chat-form-container">
             <form id="chat-form">
-              <input id="msg" type="text" placeholder="Enter Message" required autocomplete="off" />
+              <input id="chat-message-input" type="text" placeholder="Enter Message" required autocomplete="off" />
               <button class="message-send-btn">
                 <i class="fas fa-paper-plane"></i>
               </button>
@@ -19,7 +18,6 @@
           </div>
         </div>
       </section>
-
       <section id="people-panel" class="sidebar-panel hidden">
         <div class="sidebar-header">
           <h3>People</h3>
@@ -36,11 +34,8 @@
         <h4 class="people-section-title">
           In the meeting
         </h4>
-        <ul class="people-list" id="people-list">
-          <!-- JS Injected Participants -->
-        </ul>
+        <ul class="people-list" id="people-list"></ul>
       </section>
-
       <section id="room-panel" class="sidebar-panel hidden">
         <div class="sidebar-header">
           <h3>Meeting details</h3>
@@ -55,7 +50,6 @@
           </button>
         </div>
       </section>
-
       <!-- Bottom Navigation -->
       <nav class="sidebar-nav">
         <button class="nav-btn active" data-target="chat-panel"><i class="fas fa-comment"></i></button>
