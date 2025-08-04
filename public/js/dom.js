@@ -21,11 +21,11 @@ export const bindChatMessageInputListener = (element, action) => {
 
 const handleMessageSubmit = (e, action) => {
   e.preventDefault();
-  let msg = e.target.elements.msg.value.trim();
+  let msg = e.target.elements.chatMessageInput.value.trim();
   if (msg) {
     action(msg);
-    e.target.elements.msg.value = "";
-    e.target.elements.msg.focus();
+    e.target.elements.chatMessageInput.value = "";
+    e.target.elements.chatMessageInput.focus();
   }  
 }
 
@@ -187,7 +187,6 @@ export const setupSideBar = () => {
     if (targetPanel) {
       targetPanel.classList.remove('hidden');
     }
-    container.classList.add('sidebar-visible');
     navButtons.forEach((btn) => {
       if (btn.getAttribute('data-target') === targetId) {
         btn.classList.add('active');
@@ -207,7 +206,10 @@ export const setupSideBar = () => {
     });
   });
 
-  sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('visible'));
+  sidebarBtn.addEventListener('click', () => {
+    container.classList.toggle('sidebar-visible');
+    sidebar.classList.toggle('visible');}
+  );
 
   document.getElementById('copy-room-code')?.addEventListener('click', () => {
     const code = document.getElementById('room-code-text')?.textContent;

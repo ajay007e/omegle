@@ -5,26 +5,80 @@
   height: calc(100vh - 8.5rem);
   display: flex;
   overflow: hidden;
+  padding: 1rem;
 }
 
 /* Main video area */
 #video-container {
-  flex: 1;
+  width:100%;
   transition: width 0.3s ease;
-  /* when sidebar visible, width changes with JS */
+  border-radius: 0.75rem;
+  background-color: #ffffff; /* Light background for video area */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sidebar visible - reduce video area smoothly */
+.room-container.sidebar-visible #video-container {
+  width: calc(100% - 1rem - min(30%, 350px));
+}
+
+
+#video-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  height: 100%;
+  width: 100%;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+#video-section .video-frame {
+  aspect-ratio: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+
+  flex: 1 1 300px;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+  min-width: 200px;
+
+  height: auto;
+}
+
+#video-section .video-frame video {
+  object-fit: cover; /* Cover the entire frame without preserving aspect ratio */
+  object-position: center;
+  pointer-events: none;
+
+  aspect-ratio: auto;
+  width: auto;
 }
 
 /* Sidebars */
 .video-sidebar {
   position: absolute;
-  right: 0%;
+  right: 1rem;
   width: 30%;
   max-width: 350px;
-  height: calc(100vh - 8.5rem);
+  height: calc(100vh - 10.5rem);
   color: #f0f0f0;
   overflow-y: auto;
   transition: transform 0.3s ease, opacity 0.3s ease;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.7);
+
+  background-color: #ffffff; /* Clean white sidebar */
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
 
   display: flex;
   flex-direction: column;
@@ -106,8 +160,11 @@
 
 
 #chat-panel .chat-messages-area {
-  background-color: var(--color-bg);
-  height: calc(100vh - 10rem);
+  background-color: #ffffff;
+}
+
+#chat-panel .chat-form-container {
+  padding: .5rem 0 0 0;
 }
 
 
@@ -118,6 +175,10 @@
   flex-direction: column;
   height: 100%;
   padding: 1rem;
+}
+
+#chat-panel {
+  padding-bottom: .5rem;
 }
 
 .people-section-title {
@@ -466,11 +527,5 @@
 #control-panel .warning:hover {
   background: #fb8c00;
 }
-
-.room-container.sidebar-visible #video-container {
-  width: 70%;
-}
-
-
 
 

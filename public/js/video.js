@@ -25,7 +25,9 @@ export const startPeerConnection = (socket, username, roomId = '') => {
       audio: false,
     }).then(hostStream => {
         localStream = hostStream;
-        addVideoStream(hostVideoElement, hostStream, true);
+        const isHostVideo = true;
+        const isPrivateRoom = roomId === '';
+        addVideoStream(hostVideoElement, hostStream, isHostVideo && isPrivateRoom);
         socket.emit("join-room", { username, roomId, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
@@ -91,10 +93,10 @@ const connectToNewUser = (peer, userId, stream) => {
     userStremDatabase[userId] = call;
 }
 
-const addVideoStream = (video, stream, isHostVideo) => {
+const addVideoStream = (video, stream, isControlRequired) => {
     if (!stream || !video)  return;
     video.srcObject = stream;
-    const videoPlayer = generateVideoPlayer(isHostVideo, video);
+    const videoPlayer = generateVideoPlayer(isControlRequired, video);
     video.addEventListener('loadedmetadata', () => {
         video.play();
         appendVideoPlayer(videoPlayer);

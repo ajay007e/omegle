@@ -1,5 +1,7 @@
 <div class="room-container">
-    <main id="video-container"></main>
+    <main id="video-container">
+        <div id="video-section"></div>
+    </main>
     <aside id="video-sidebar" class="video-sidebar">
       <!-- Sections: Only one is visible at a time -->
       <section id="chat-panel" class="sidebar-panel">
@@ -10,7 +12,7 @@
           <div class="chat-messages-area"></div>
           <div class="chat-form-container">
             <form id="chat-form">
-              <input id="chat-message-input" type="text" placeholder="Enter Message" required autocomplete="off" />
+              <input id="chat-message-input" name="chatMessageInput" type="text" placeholder="Enter Message" required autocomplete="off" />
               <button class="message-send-btn">
                 <i class="fas fa-paper-plane"></i>
               </button>
