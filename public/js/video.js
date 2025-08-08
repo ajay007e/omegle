@@ -25,15 +25,25 @@ export const startPeerConnection = (socket, username, roomId = '') => {
       audio: false,
     }).then(hostStream => {
         localStream = hostStream;
-        const isHostVideo = true;
         const isPrivateRoom = roomId === '';
-        addVideoStream(hostVideoElement, hostStream, isHostVideo && isPrivateRoom);
+        addVideoStream({
+          video: hostVideoElement,
+          stream: hostStream,
+          isHost: true,
+          userId: id,
+          isControlRequired: isPrivateRoom
+        });
         socket.emit("join-room", { username, roomId, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
           const userVideoElement = document.createElement('video');
           call.on("stream", userStream => {
-            addVideoStream(userVideoElement, userStream, false);
+            addVideoStream({
+              video: userVideoElement,
+              stream: userStream,
+              isControlRequired: false,
+              userId: call.peer
+            });
           });
         });
         socket.on('user-joined', userId => {
@@ -81,7 +91,7 @@ const connectToNewUser = (peer, userId, stream) => {
     const userVideo = document.createElement('video');
     let userVideoFrame = undefined;
     call.on('stream', userStream => {
-        userVideoFrame = addVideoStream(userVideo, userStream, false);
+        userVideoFrame = addVideoStream({video: userVideo, stream: userStream, userId, isControlRequired: false});
     })
     call.on('close', () => {
         const stream = userVideo.srcObject;
@@ -93,10 +103,10 @@ const connectToNewUser = (peer, userId, stream) => {
     userStremDatabase[userId] = call;
 }
 
-const addVideoStream = (video, stream, isControlRequired) => {
+const addVideoStream = ({video, stream, isControlRequired, isHost = false, userId}) => {
     if (!stream || !video)  return;
     video.srcObject = stream;
-    const videoPlayer = generateVideoPlayer(isControlRequired, video);
+    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, userId});
     video.addEventListener('loadedmetadata', () => {
         video.play();
         appendVideoPlayer(videoPlayer);

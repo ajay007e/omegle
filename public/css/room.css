@@ -8,8 +8,13 @@
   padding: 1rem;
 }
 
+/* Sidebar visible - reduce video area smoothly */
+.room-container.sidebar-visible .video-container {
+  width: calc(100% - 1rem - min(30%, 350px));
+}
+
 /* Main video area */
-#video-container {
+.video-container {
   width:100%;
   transition: width 0.3s ease;
   border-radius: 0.75rem;
@@ -18,28 +23,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
-/* Sidebar visible - reduce video area smoothly */
-.room-container.sidebar-visible #video-container {
-  width: calc(100% - 1rem - min(30%, 350px));
-}
-
-
-#video-section {
-  display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
   gap: 0.75rem;
-  height: 100%;
-  width: 100%;
   padding: 1rem;
   overflow: hidden;
+
 }
 
-#video-section .video-frame {
-  aspect-ratio: auto;
+.video-container .video-frame {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,20 +40,24 @@
 
   flex: 1 1 300px;
   max-width: 100%;
+  max-height: 100%;
   overflow: hidden;
   position: relative;
   min-width: 200px;
 
-  height: auto;
+  border-radius: .75rem;
 }
 
-#video-section .video-frame video {
+.video-container .video-frame video {
   object-fit: cover; /* Cover the entire frame without preserving aspect ratio */
   object-position: center;
   pointer-events: none;
 
-  aspect-ratio: auto;
-  width: auto;
+  border-radius: .75rem;
+
+  width: 100%;
+  height: 100%;
+
 }
 
 /* Sidebars */
@@ -188,10 +184,12 @@
   margin-bottom: 0.5rem;
   border-bottom: 0.1rem solid #ddd;
 }
+
 /* Search */
 .people-search {
   margin-bottom: 0rem;
 }
+
 .people-search input {
   width: 100%;
   padding: 0.5rem 0.75rem;
@@ -492,6 +490,7 @@
   padding: 0; /* remove default padding for circle */
   background: #555; /* gray */
 }
+
 #control-panel button:hover {
   background: #444;
 }
@@ -527,5 +526,4 @@
 #control-panel .warning:hover {
   background: #fb8c00;
 }
-
 

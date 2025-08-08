@@ -18,7 +18,8 @@ const formatMessage = (username, text, extra = {isSystemGenerated:true}) => {
       isUserActionMessage: message_helper_functions.CHECK_USER_JOIN_MESSAGE(text) || message_helper_functions.CHECK_USER_LEFT_MESSAGE(text),
       isUserLeftMessage: message_helper_functions.CHECK_USER_LEFT_MESSAGE(text),
       isUserJoinMessage: message_helper_functions.CHECK_USER_JOIN_MESSAGE(text),
-      isPrivateRoom: extra?.room?.type !== room_types.MEETING
+      isPrivateRoom: extra?.room?.type !== room_types.MEETING,
+      userId: extra?.user?.userId
     }
   }
 }

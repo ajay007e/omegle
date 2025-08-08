@@ -71,8 +71,9 @@ export const outputMessage = (message) => {
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 
   if (message.info.isUserLeftMessage){
+    // TODO: remove if the host-vf has more than or less than 2 users in the room
     document.getElementById("host-vf").classList.remove("mini");
-    document.getElementById("user-vf")?.remove();
+    document.getElementById(message.info.userId)?.remove();
   }
 }
 
@@ -111,7 +112,7 @@ const generateMessageDiv = (message) => {
 
 
 // UI OUTPUT FUNCTIONS FOR video.js
-export const generateVideoPlayer = (isControlRequired, video) => {
+export const generateVideoPlayer = ({isControlRequired, video, isHost, userId}) => {
   const videoPlayer = document.createElement("div");
   videoPlayer.classList.add("video-frame");
 
@@ -134,10 +135,12 @@ export const generateVideoPlayer = (isControlRequired, video) => {
     control.appendChild(camaraControl);
     control.appendChild(audioControl);
     videoPlayer.appendChild(control);
-
+  }
+  if (isHost) {
     videoPlayer.id = "host-vf";
   } else {
-    videoPlayer.id = "user-vf";
+    videoPlayer.classList.add("user-vf")
+    videoPlayer.id = userId;
   }
   videoPlayer.appendChild(video);
   return videoPlayer;
