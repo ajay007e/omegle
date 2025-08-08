@@ -21,11 +21,11 @@ export const bindChatMessageInputListener = (element, action) => {
 
 const handleMessageSubmit = (e, action) => {
   e.preventDefault();
-  let msg = e.target.elements.msg.value.trim();
+  let msg = e.target.elements.chatMessageInput.value.trim();
   if (msg) {
     action(msg);
-    e.target.elements.msg.value = "";
-    e.target.elements.msg.focus();
+    e.target.elements.chatMessageInput.value = "";
+    e.target.elements.chatMessageInput.focus();
   }  
 }
 
@@ -49,7 +49,7 @@ export const outputRoomName = (room) => {
 
 export const outputUsers = (users, isUserHost) => {
   global_users_collection = users.map(user => ({...user, isUserHost}));
-  renderUsers(users);
+  renderUsers(global_users_collection);
 }
 
 const renderUsers = (users) => {
@@ -69,11 +69,11 @@ export const outputMessage = (message) => {
   chatMessageContainer.prepend(generateMessageDiv(message))
   document.getElementById("chat-message-input").disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+}
 
-  if (message.info.isUserLeftMessage){
-    document.getElementById("host-vf").classList.remove("mini");
-    document.getElementById("user-vf")?.remove();
-  }
+export const handleUserLeaveSafely = (userId) => {
+  document.getElementById(userId)?.remove();
+  adjustRoomVideoLayout();
 }
 
 const generateMessageDiv = (message) => {
@@ -111,7 +111,7 @@ const generateMessageDiv = (message) => {
 
 
 // UI OUTPUT FUNCTIONS FOR video.js
-export const generateVideoPlayer = (isControlRequired, video) => {
+export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, isPrivateRoom}) => {
   const videoPlayer = document.createElement("div");
   videoPlayer.classList.add("video-frame");
 
@@ -134,10 +134,16 @@ export const generateVideoPlayer = (isControlRequired, video) => {
     control.appendChild(camaraControl);
     control.appendChild(audioControl);
     videoPlayer.appendChild(control);
-
+  }
+  if (isHost) {
     videoPlayer.id = "host-vf";
   } else {
-    videoPlayer.id = "user-vf";
+    if (isPrivateRoom) {
+      videoPlayer.id = "user-vf"
+    } else {
+      videoPlayer.classList.add("user-vf")
+      videoPlayer.id = userId;
+    }
   }
   videoPlayer.appendChild(video);
   return videoPlayer;
@@ -156,9 +162,34 @@ export const cleanUpEmptyVideoFrames = () => {
 
 export const appendVideoPlayer = (videoPlayer) => {
   document.getElementById("video-section").appendChild(videoPlayer);
-  if (videoPlayer.id === 'user-vf') {
-    document.getElementById("host-vf").classList.add("mini");
+}
+
+const handleMiniVideoPlayer = () => {
+  const videoPlayer = document.getElementById("user-vf");
+  const hostVideoPlayer = document.getElementById("host-vf");
+  const videoFramesCount = document.querySelector(".video-container").querySelectorAll(".video-frame").length;
+  if (videoPlayer?.id === 'user-vf' || videoFramesCount == 2) {
+    hostVideoPlayer.classList.add("mini");
+  } else {
+    hostVideoPlayer.classList.remove("mini");
   }
+}
+
+export const adjustRoomVideoLayout = () => {
+  const container = document.querySelector('.video-container');
+  const frames = container.querySelectorAll('.video-frame');
+  const count = frames.length;
+
+  container.className = 'video-container';
+
+  if (count < 3) {
+    container.classList.add(`layout-1`);
+  } else if (count > 2 && count < 16) {
+    container.classList.add(`layout-${count}`);
+  } else {
+    container.classList.add(`layout-16`);
+  }
+  handleMiniVideoPlayer();
 }
 
 export const toggleControlBtn = (kind) => {
@@ -187,7 +218,6 @@ export const setupSideBar = () => {
     if (targetPanel) {
       targetPanel.classList.remove('hidden');
     }
-    container.classList.add('sidebar-visible');
     navButtons.forEach((btn) => {
       if (btn.getAttribute('data-target') === targetId) {
         btn.classList.add('active');
@@ -207,7 +237,10 @@ export const setupSideBar = () => {
     });
   });
 
-  sidebarBtn.addEventListener('click', () => sidebar.classList.toggle('visible'));
+  sidebarBtn.addEventListener('click', () => {
+    container.classList.toggle('sidebar-visible');
+    sidebar.classList.toggle('visible');}
+  );
 
   document.getElementById('copy-room-code')?.addEventListener('click', () => {
     const code = document.getElementById('room-code-text')?.textContent;

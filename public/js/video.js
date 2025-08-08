@@ -2,7 +2,8 @@ import {
   generateVideoPlayer,
   toggleControlBtn,
   appendVideoPlayer,
-  cleanUpEmptyVideoFrames 
+  cleanUpEmptyVideoFrames, 
+  adjustRoomVideoLayout
 } from "./dom.js";
 
 const userStremDatabase = {};
@@ -25,17 +26,31 @@ export const startPeerConnection = (socket, username, roomId = '') => {
       audio: false,
     }).then(hostStream => {
         localStream = hostStream;
-        addVideoStream(hostVideoElement, hostStream, true);
+        const isPrivateRoom = roomId === '';
+        addVideoStream({
+          video: hostVideoElement,
+          stream: hostStream,
+          isHost: true,
+          userId: id,
+          isControlRequired: isPrivateRoom,
+          isPrivateRoom
+        });
         socket.emit("join-room", { username, roomId, userId: id });
         peer.on("call", call => {
           call.answer(hostStream);
           const userVideoElement = document.createElement('video');
           call.on("stream", userStream => {
-            addVideoStream(userVideoElement, userStream, false);
+            addVideoStream({
+              video: userVideoElement,
+              stream: userStream,
+              isControlRequired: false,
+              userId: call.peer,
+              isPrivateRoom
+            });
           });
         });
         socket.on('user-joined', userId => {
-          connectToNewUser(peer, userId, hostStream)
+          connectToNewUser({peer, userId, stream: hostStream, isPrivateRoom})
         });
       });
   });
@@ -74,12 +89,12 @@ export const toggleControl = (kind) => {
   toggleControlBtn(kind);
 }
 
-const connectToNewUser = (peer, userId, stream) => {
+const connectToNewUser = ({peer, userId, stream, isPrivateRoom}) => {
     const call = peer.call(userId, stream);
     const userVideo = document.createElement('video');
     let userVideoFrame = undefined;
     call.on('stream', userStream => {
-        userVideoFrame = addVideoStream(userVideo, userStream, false);
+        userVideoFrame = addVideoStream({video: userVideo, stream: userStream, userId, isControlRequired: false, isPrivateRoom});
     })
     call.on('close', () => {
         const stream = userVideo.srcObject;
@@ -87,18 +102,20 @@ const connectToNewUser = (peer, userId, stream) => {
           stream.getTracks().forEach(track => track.stop());
         }
         userVideoFrame.remove();
+        adjustRoomVideoLayout();
     })
     userStremDatabase[userId] = call;
 }
 
-const addVideoStream = (video, stream, isHostVideo) => {
+const addVideoStream = ({video, stream, isControlRequired, isHost = false, userId, isPrivateRoom}) => {
     if (!stream || !video)  return;
     video.srcObject = stream;
-    const videoPlayer = generateVideoPlayer(isHostVideo, video);
+    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, userId, isPrivateRoom});
     video.addEventListener('loadedmetadata', () => {
         video.play();
         appendVideoPlayer(videoPlayer);
         cleanUpEmptyVideoFrames();
+        adjustRoomVideoLayout();
     });
     return videoPlayer;
 }

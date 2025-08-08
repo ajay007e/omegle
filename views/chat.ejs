@@ -1,4 +1,4 @@
-<main class="chat-main-container">
+<div class="chat-main-container">
   <section class="chat-left-container">
     <button id="chat-section-toggle-btn" class="chat-section-toggle-button"></button>
     <div class="video-wrapper" id="video-section"></div>
@@ -12,6 +12,7 @@
       <form id="chat-form">
         <input
           id="chat-message-input"
+          name="chatMessageInput"
           type="text"
           placeholder="Enter Message"
           required
@@ -24,7 +25,7 @@
       </form>
     </div>
   </section>
-</main>
+</div>
 
 <script>
   window.APP_CONTEXT = {
