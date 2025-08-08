@@ -32,7 +32,8 @@ export const startPeerConnection = (socket, username, roomId = '') => {
           stream: hostStream,
           isHost: true,
           userId: id,
-          isControlRequired: isPrivateRoom
+          isControlRequired: isPrivateRoom,
+          isPrivateRoom
         });
         socket.emit("join-room", { username, roomId, userId: id });
         peer.on("call", call => {
@@ -43,12 +44,13 @@ export const startPeerConnection = (socket, username, roomId = '') => {
               video: userVideoElement,
               stream: userStream,
               isControlRequired: false,
-              userId: call.peer
+              userId: call.peer,
+              isPrivateRoom
             });
           });
         });
         socket.on('user-joined', userId => {
-          connectToNewUser(peer, userId, hostStream)
+          connectToNewUser({peer, userId, stream: hostStream, isPrivateRoom})
         });
       });
   });
@@ -87,12 +89,12 @@ export const toggleControl = (kind) => {
   toggleControlBtn(kind);
 }
 
-const connectToNewUser = (peer, userId, stream) => {
+const connectToNewUser = ({peer, userId, stream, isPrivateRoom}) => {
     const call = peer.call(userId, stream);
     const userVideo = document.createElement('video');
     let userVideoFrame = undefined;
     call.on('stream', userStream => {
-        userVideoFrame = addVideoStream({video: userVideo, stream: userStream, userId, isControlRequired: false});
+        userVideoFrame = addVideoStream({video: userVideo, stream: userStream, userId, isControlRequired: false, isPrivateRoom});
     })
     call.on('close', () => {
         const stream = userVideo.srcObject;
@@ -105,10 +107,10 @@ const connectToNewUser = (peer, userId, stream) => {
     userStremDatabase[userId] = call;
 }
 
-const addVideoStream = ({video, stream, isControlRequired, isHost = false, userId}) => {
+const addVideoStream = ({video, stream, isControlRequired, isHost = false, userId, isPrivateRoom}) => {
     if (!stream || !video)  return;
     video.srcObject = stream;
-    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, userId});
+    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, userId, isPrivateRoom});
     video.addEventListener('loadedmetadata', () => {
         video.play();
         appendVideoPlayer(videoPlayer);

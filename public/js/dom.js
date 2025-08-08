@@ -49,7 +49,7 @@ export const outputRoomName = (room) => {
 
 export const outputUsers = (users, isUserHost) => {
   global_users_collection = users.map(user => ({...user, isUserHost}));
-  renderUsers(users);
+  renderUsers(global_users_collection);
 }
 
 const renderUsers = (users) => {
@@ -69,14 +69,11 @@ export const outputMessage = (message) => {
   chatMessageContainer.prepend(generateMessageDiv(message))
   document.getElementById("chat-message-input").disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+}
 
-  // TODO: seperate the following logic into a different function, it breaks SRP
-  if (message.info.isUserLeftMessage){
-    // TODO: remove if the host-vf has more than or less than 2 users in the room
-    document.getElementById("host-vf").classList.remove("mini");
-    document.getElementById(message.info.userId)?.remove();
-    adjustRoomVideoLayout();
-  }
+export const handleUserLeaveSafely = (userId) => {
+  document.getElementById(userId)?.remove();
+  adjustRoomVideoLayout();
 }
 
 const generateMessageDiv = (message) => {
@@ -114,7 +111,7 @@ const generateMessageDiv = (message) => {
 
 
 // UI OUTPUT FUNCTIONS FOR video.js
-export const generateVideoPlayer = ({isControlRequired, video, isHost, userId}) => {
+export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, isPrivateRoom}) => {
   const videoPlayer = document.createElement("div");
   videoPlayer.classList.add("video-frame");
 
@@ -141,8 +138,12 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, userId}) 
   if (isHost) {
     videoPlayer.id = "host-vf";
   } else {
-    videoPlayer.classList.add("user-vf")
-    videoPlayer.id = userId;
+    if (isPrivateRoom) {
+      videoPlayer.id = "user-vf"
+    } else {
+      videoPlayer.classList.add("user-vf")
+      videoPlayer.id = userId;
+    }
   }
   videoPlayer.appendChild(video);
   return videoPlayer;
@@ -161,9 +162,16 @@ export const cleanUpEmptyVideoFrames = () => {
 
 export const appendVideoPlayer = (videoPlayer) => {
   document.getElementById("video-section").appendChild(videoPlayer);
-  // TODO: following logic should be seperated from this function, it breaks SRP
-  if (videoPlayer.id === 'user-vf') {
-    document.getElementById("host-vf").classList.add("mini");
+}
+
+const handleMiniVideoPlayer = () => {
+  const videoPlayer = document.getElementById("user-vf");
+  const hostVideoPlayer = document.getElementById("host-vf");
+  const videoFramesCount = document.querySelector(".video-container").querySelectorAll(".video-frame").length;
+  if (videoPlayer?.id === 'user-vf' || videoFramesCount == 2) {
+    hostVideoPlayer.classList.add("mini");
+  } else {
+    hostVideoPlayer.classList.remove("mini");
   }
 }
 
@@ -174,11 +182,14 @@ export const adjustRoomVideoLayout = () => {
 
   container.className = 'video-container';
 
-  if (count >= 1 && count < 16) {
+  if (count < 3) {
+    container.classList.add(`layout-1`);
+  } else if (count > 2 && count < 16) {
     container.classList.add(`layout-${count}`);
   } else {
     container.classList.add(`layout-16`);
   }
+  handleMiniVideoPlayer();
 }
 
 export const toggleControlBtn = (kind) => {
