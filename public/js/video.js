@@ -2,7 +2,8 @@ import {
   generateVideoPlayer,
   toggleControlBtn,
   appendVideoPlayer,
-  cleanUpEmptyVideoFrames 
+  cleanUpEmptyVideoFrames, 
+  adjustRoomVideoLayout
 } from "./dom.js";
 
 const userStremDatabase = {};
@@ -99,6 +100,7 @@ const connectToNewUser = (peer, userId, stream) => {
           stream.getTracks().forEach(track => track.stop());
         }
         userVideoFrame.remove();
+        adjustRoomVideoLayout();
     })
     userStremDatabase[userId] = call;
 }
@@ -111,6 +113,7 @@ const addVideoStream = ({video, stream, isControlRequired, isHost = false, userI
         video.play();
         appendVideoPlayer(videoPlayer);
         cleanUpEmptyVideoFrames();
+        adjustRoomVideoLayout();
     });
     return videoPlayer;
 }

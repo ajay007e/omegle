@@ -16,36 +16,122 @@
 /* Main video area */
 .video-container {
   width:100%;
+  height: 100%;
   transition: width 0.3s ease;
   border-radius: 0.75rem;
   background-color: #ffffff; /* Light background for video area */
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center center;
 
-  flex-wrap: wrap;
   gap: 0.75rem;
   padding: 1rem;
   overflow: hidden;
 
 }
 
+/* 1 video */
+.video-container.layout-1 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* 2 videos */
+.video-container.layout-2 {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 1fr;
+}
+
+/* 3-4 videos: 2x2 */
+.video-container.layout-3,
+.video-container.layout-4 {
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: 1fr 1fr;
+}
+.video-container.layout-3 .video-frame:nth-last-child(1) {
+  grid-column: 2/4;
+  background: white
+}
+
+/* 5–6 videos: 3x2 */
+.video-container.layout-5,
+.video-container.layout-6 {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: 1fr 1fr;
+}
+.video-container.layout-5 .video-frame:nth-last-child(2) {
+  grid-column: 2/4;
+  background: white
+}
+
+/* 7–9 videos: 3x3 */
+.video-container.layout-7,
+.video-container.layout-8,
+.video-container.layout-9 {
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.video-container.layout-7 .video-frame:nth-last-child(1) {
+  grid-column: 3/5;
+  background: white
+}
+
+.video-container.layout-8 .video-frame:nth-last-child(2) {
+  grid-column: 2/4;
+  background: white
+}
+
+/* 10–16 videos: 4x4 */
+.video-container.layout-10,
+.video-container.layout-11,
+.video-container.layout-12 {
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+}
+.video-container.layout-10 .video-frame:nth-last-child(2) {
+  grid-column: 3/5;
+  background: white
+}
+.video-container.layout-11 .video-frame:nth-last-child(3) {
+  grid-column: 2/4;
+  background: white
+}
+
+.video-container.layout-13,
+.video-container.layout-14,
+.video-container.layout-15,
+.video-container.layout-16 {
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+}
+.video-container.layout-13 .video-frame:nth-last-child(1) {
+  grid-column: 4/6;
+  background: white
+}
+.video-container.layout-14 .video-frame:nth-last-child(2) {
+  grid-column: 3/5;
+  background: white
+}
+.video-container.layout-15 .video-frame:nth-last-child(3) {
+  grid-column: 2/4;
+  background: white
+}
+
 .video-container .video-frame {
   display: flex;
   align-items: center;
   justify-content: center;
+  grid-column: span 2;
 
-  background: transparent;
+  background: black;
 
-  flex: 1 1 300px;
-  max-width: 100%;
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
   min-width: 200px;
 
-  border-radius: .75rem;
+  border-radius: 0.75rem;
 }
 
 .video-container .video-frame video {

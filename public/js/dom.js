@@ -70,10 +70,12 @@ export const outputMessage = (message) => {
   document.getElementById("chat-message-input").disabled = message.info.isPrivateRoom ? message.info.isUserWaiting : false;
   chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 
+  // TODO: seperate the following logic into a different function, it breaks SRP
   if (message.info.isUserLeftMessage){
     // TODO: remove if the host-vf has more than or less than 2 users in the room
     document.getElementById("host-vf").classList.remove("mini");
     document.getElementById(message.info.userId)?.remove();
+    adjustRoomVideoLayout();
   }
 }
 
@@ -159,8 +161,23 @@ export const cleanUpEmptyVideoFrames = () => {
 
 export const appendVideoPlayer = (videoPlayer) => {
   document.getElementById("video-section").appendChild(videoPlayer);
+  // TODO: following logic should be seperated from this function, it breaks SRP
   if (videoPlayer.id === 'user-vf') {
     document.getElementById("host-vf").classList.add("mini");
+  }
+}
+
+export const adjustRoomVideoLayout = () => {
+  const container = document.querySelector('.video-container');
+  const frames = container.querySelectorAll('.video-frame');
+  const count = frames.length;
+
+  container.className = 'video-container';
+
+  if (count >= 1 && count < 16) {
+    container.classList.add(`layout-${count}`);
+  } else {
+    container.classList.add(`layout-16`);
   }
 }
 
