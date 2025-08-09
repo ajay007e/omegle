@@ -3,7 +3,8 @@ import {
   toggleControlBtn,
   appendVideoPlayer,
   cleanUpEmptyVideoFrames, 
-  adjustRoomVideoLayout
+  adjustRoomVideoLayout,
+  setupControlPanel
 } from "./dom.js";
 
 const userStremDatabase = {};
@@ -112,10 +113,11 @@ const addVideoStream = ({video, stream, isControlRequired, isHost = false, userI
     video.srcObject = stream;
     const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, userId, isPrivateRoom});
     video.addEventListener('loadedmetadata', () => {
-        video.play();
-        appendVideoPlayer(videoPlayer);
-        cleanUpEmptyVideoFrames();
-        adjustRoomVideoLayout();
+      video.play();
+      appendVideoPlayer(videoPlayer);
+      cleanUpEmptyVideoFrames();
+      adjustRoomVideoLayout(isPrivateRoom);
+      !isPrivateRoom && isHost && setupControlPanel();
     });
     return videoPlayer;
 }

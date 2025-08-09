@@ -167,7 +167,7 @@ export const appendVideoPlayer = (videoPlayer) => {
 const handleMiniVideoPlayer = () => {
   const videoPlayer = document.getElementById("user-vf");
   const hostVideoPlayer = document.getElementById("host-vf");
-  const videoFramesCount = document.querySelector(".video-container").querySelectorAll(".video-frame").length;
+  const videoFramesCount = document.querySelectorAll(".video-frame").length;
   if (videoPlayer?.id === 'user-vf' || videoFramesCount == 2) {
     hostVideoPlayer.classList.add("mini");
   } else {
@@ -175,19 +175,21 @@ const handleMiniVideoPlayer = () => {
   }
 }
 
-export const adjustRoomVideoLayout = () => {
-  const container = document.querySelector('.video-container');
-  const frames = container.querySelectorAll('.video-frame');
-  const count = frames.length;
+export const adjustRoomVideoLayout = (isPrivateRoom = false) => {
+  if (!isPrivateRoom) {
+    const container = document.querySelector('.video-container');
+    const frames = container.querySelectorAll('.video-frame');
+    const count = frames.length;
 
-  container.className = 'video-container';
+    container.className = 'video-container';
 
-  if (count < 3) {
-    container.classList.add(`layout-1`);
-  } else if (count > 2 && count < 16) {
-    container.classList.add(`layout-${count}`);
-  } else {
-    container.classList.add(`layout-16`);
+    if (count < 3) {
+      container.classList.add(`layout-1`);
+    } else if (count > 2 && count < 16) {
+      container.classList.add(`layout-${count}`);
+    } else {
+      container.classList.add(`layout-16`);
+    }
   }
   handleMiniVideoPlayer();
 }
@@ -205,7 +207,21 @@ export const toggleControlBtn = (kind) => {
 
 
 // PAGE CONFIGURATION FUNCTION FOR room PAGE
-export const setupSideBar = () => {
+export const setupRoomPage = () => {
+  setupSideBar();
+}
+
+export const setupControlPanel = () => {
+  const camaraControlBtn = document.getElementById("camara-cntl");
+  isTrackEnabled("video", true) ? camaraControlBtn.classList.add("enabled") : camaraControlBtn.classList.add("disabled");
+  camaraControlBtn.addEventListener("click", () => toggleControl('video'));
+
+  const audioControlBtn = document.getElementById("audio-cntl");
+  isTrackEnabled("audio", true) ? audioControlBtn.classList.add("enabled") : audioControlBtn.classList.add("disabled");
+  audioControlBtn.addEventListener("click", () => toggleControl('audio'));
+}
+
+const setupSideBar = () => {
   const container = document.querySelector('.room-container');
   const sidebar = document.getElementById('video-sidebar');
   const sidebarBtn = document.getElementById('btn-sidebar');

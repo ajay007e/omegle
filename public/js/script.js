@@ -1,7 +1,7 @@
 import { setupSocket, sendMessage } from "./chat.js"
 import { startPeerConnection } from "./video.js";
 import { 
-  setupSideBar,
+  setupRoomPage,
   bindLeaveButtonListener, 
   bindChatMessageInputListener,
   bindActionToggleButtonListener 
@@ -43,7 +43,7 @@ window.addEventListener("DOMContentLoaded", () => {
       chatMessageInput,
       (message) => {sendMessage(socket, message)}
     );
-    setupSideBar();
+    setupRoomPage();
   }
 });
 

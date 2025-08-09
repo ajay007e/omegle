@@ -602,19 +602,19 @@
   z-index: 3;
   transition: background 0.3s;
   padding: 0; /* remove default padding for circle */
-  background: #555; /* gray */
+  background: #F44336;
 }
 
 #control-panel button:hover {
-  background: #444;
+  background: #d32f2f;
 }
 
 /* Mic/Camera off, or inactive state */
-#control-panel .disabled {
-  background: #F44336; /* red */
+#control-panel .default {
+  background: #555; /* gray */
 }
-#control-panel .disabled:hover {
-  background: #d32f2f;
+#control-panel .default:hover {
+  background: #444;
 }
 
 /* Mic/Camera on, or active state */
