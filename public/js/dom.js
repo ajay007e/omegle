@@ -1,4 +1,5 @@
 import { toggleControl, isTrackEnabled } from "./video.js";
+import { sendEvent } from "./chat.js";
 
 // GLOBAL VARIABLES
 let global_users_collection = [];
@@ -50,6 +51,18 @@ export const outputRoomName = (room) => {
 export const outputUsers = (users, isUserHost) => {
   global_users_collection = users.map(user => ({...user, isUserHost}));
   renderUsers(global_users_collection);
+  updateVideoFrames();
+}
+
+const updateVideoFrames = () => {
+  const videoFrames = Array.from(document.querySelectorAll(".video-frame"));
+  videoFrames.forEach(element => {
+    if(element.id == "host-vf") {
+      element.dataset.name = global_users_collection.find(user => user.isUser)?.username;
+    } else {
+      element.dataset.name = global_users_collection.find(user => user.userId === element.id)?.username;
+    }
+  });
 }
 
 const renderUsers = (users) => {
@@ -135,6 +148,7 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, i
     control.appendChild(audioControl);
     videoPlayer.appendChild(control);
   }
+
   if (isHost) {
     videoPlayer.id = "host-vf";
   } else {
@@ -145,6 +159,16 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, i
       videoPlayer.id = userId;
     }
   }
+
+  const pinButton = document.createElement('button');
+  pinButton.innerHTML = '<i class="fas fa-thumbtack"></i>';
+  pinButton.classList.add('pin-btn');
+  pinButton.addEventListener('click', () => {
+    removeSpotlight();
+    adjustRoomVideoLayout(false);
+  });
+  videoPlayer.appendChild(pinButton);
+  
   videoPlayer.appendChild(video);
   return videoPlayer;
 }
@@ -168,11 +192,41 @@ const handleMiniVideoPlayer = () => {
   const videoPlayer = document.getElementById("user-vf");
   const hostVideoPlayer = document.getElementById("host-vf");
   const videoFramesCount = document.querySelectorAll(".video-frame").length;
-  if (videoPlayer?.id === 'user-vf' || videoFramesCount == 2) {
+  const isSpotlightEnabled = document.querySelector(".spotlight");
+  if ((videoPlayer?.id === 'user-vf' || videoFramesCount == 2) && !isSpotlightEnabled) {
     hostVideoPlayer.classList.add("mini");
   } else {
     hostVideoPlayer.classList.remove("mini");
   }
+}
+
+const handleSpotlight = () => {
+  const isSpotlightEnabled = document.querySelector(".spotlight");
+  const isPinExist = document.querySelector(".pin");
+  const videoFrames = Array.from(document.querySelectorAll(".video-frame:not(.pin)"));
+  videoFrames.forEach(frame => frame.classList.remove("hidden"));
+  document.getElementById("video-frame-more")?.remove();
+  if(isSpotlightEnabled && isPinExist) {
+    if (videoFrames.length > 4) {
+      const targetVideoFrames = videoFrames.slice(2, videoFrames.length-1);
+      targetVideoFrames.forEach(frame => frame.classList.add("hidden"));
+      appendVideoPlayer(generateOverflowVideoFrame(targetVideoFrames));
+    }
+  } else {
+    removeSpotlight();
+  }
+}
+
+const addSpotlight = (userId) => {
+  document.querySelector('.video-container').classList.add('spotlight');
+  document.querySelector('.pin')?.classList.remove('pin');
+  document.getElementById(userId).classList.add('pin');
+  adjustRoomVideoLayout(false);
+}
+
+const removeSpotlight = () => {
+  document.querySelector('.video-container').classList.remove('spotlight');
+  document.querySelector('.pin')?.classList.remove('pin');
 }
 
 export const adjustRoomVideoLayout = (isPrivateRoom = false) => {
@@ -181,7 +235,8 @@ export const adjustRoomVideoLayout = (isPrivateRoom = false) => {
     const frames = container.querySelectorAll('.video-frame');
     const count = frames.length;
 
-    container.className = 'video-container';
+    const isSpotlightEnabled = container.classList.contains('spotlight');
+    container.className = `video-container ${isSpotlightEnabled && count != 1 ? 'spotlight' : ''}`;
 
     if (count < 3) {
       container.classList.add(`layout-1`);
@@ -190,6 +245,7 @@ export const adjustRoomVideoLayout = (isPrivateRoom = false) => {
     } else {
       container.classList.add(`layout-16`);
     }
+    handleSpotlight();
   }
   handleMiniVideoPlayer();
 }
@@ -209,6 +265,38 @@ export const toggleControlBtn = (kind) => {
 // PAGE CONFIGURATION FUNCTION FOR room PAGE
 export const setupRoomPage = () => {
   setupSideBar();
+  setupModel();
+}
+
+const showEditUserModal = () => {
+  const modalOverlay = document.getElementById("modal-overlay");
+  const modalInput = document.getElementById("modal-input");
+
+  modalInput.value = "";
+  modalOverlay.style.display = "flex";
+  modalInput.focus();
+}
+
+const setupModel = () => {
+  const modalOverlay = document.getElementById("modal-overlay");
+  const modalInput = document.getElementById("modal-input");
+  const modalSubmit = document.getElementById("modal-submit");
+  const modalCancel = document.getElementById("modal-cancel");
+
+  const hideModal = () => {
+    modalOverlay.style.display = "none";
+  }
+  modalSubmit.addEventListener("click", () => {
+    const newName = modalInput.value.trim();
+    if (newName) {
+      sendEvent('edit-user', newName);
+      hideModal();
+    }
+  });
+  modalCancel.addEventListener("click", hideModal);
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) hideModal();
+  });
 }
 
 export const setupControlPanel = () => {
@@ -329,15 +417,17 @@ const generatePersonDiv = ({userId, username, isHost, isUser, isUserHost}) => {
   const fragment = document.createDocumentFragment();
 
   // Pin Button
-  const pinBtn = document.createElement('button');
-  pinBtn.className = 'dropdown-item';
-  pinBtn.title = 'Pin';
-  pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i> Pin';
-  pinBtn.addEventListener('click', () => handlePinUser(userId));
-  fragment.appendChild(pinBtn);
+  if (!isUser) {
+    const pinBtn = document.createElement('button');
+    pinBtn.className = 'dropdown-item';
+    pinBtn.title = 'Pin';
+    pinBtn.innerHTML = '<i class="fas fa-thumbtack"></i> Pin';
+    pinBtn.addEventListener('click', () => handlePinUser(userId));
+    fragment.appendChild(pinBtn);
+  }
 
   // Edit Button
-  if (isUser || isUserHost) {
+  if (isUser) {
     const editBtn = document.createElement('button');
     editBtn.className = 'dropdown-item';
     editBtn.title = 'Edit name';
@@ -384,6 +474,42 @@ const generatePersonDiv = ({userId, username, isHost, isUser, isUserHost}) => {
   return li;
 };
 
+const generateOverflowVideoFrame = (videoFrames) => {
+  const videoFrame = document.createElement("div");
+  videoFrame.classList.add("overflow-frame");
+  videoFrame.id = "video-frame-more"
+
+  const miniUsers = document.createElement("div");
+  miniUsers.className = "mini-users"
+
+  const MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME = 2;
+  let missingUsers = 0;
+  videoFrames.slice(0, MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME).forEach(frame => {
+    const miniThumbnail = document.createElement("div");
+    miniThumbnail.classList.add("mini-thumbnail", "avathar");
+    const name = frame.dataset.name;
+    if (name) {
+      miniThumbnail.textContent = getInitials(name);
+      miniThumbnail.style.backgroundColor = getAvatarBgFromName(name);
+      miniUsers.appendChild(miniThumbnail);
+    } else {
+      missingUsers++;
+    }
+  });
+
+  const remainingFrames = videoFrames.length - MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME + missingUsers;
+  console.log(videoFrames.length, missingUsers)
+  if(remainingFrames > 0) {
+    const miniMoreThumbnail = document.createElement("div");
+    miniMoreThumbnail.classList.add("mini-thumbnail");
+    miniMoreThumbnail.id = "mini-thumbnail-more";
+    miniMoreThumbnail.textContent = `+${remainingFrames}`;
+    miniUsers.appendChild(miniMoreThumbnail);
+  }
+  videoFrame.appendChild(miniUsers);
+  return videoFrame;
+}
+
 // TODO: move to seperate helper.js
 const hashString = (str) => {
   let hash = 0;
@@ -391,6 +517,13 @@ const hashString = (str) => {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
   return Math.abs(hash);
+}
+
+const getAvatarBgFromName = (name) => {
+  const hue = Math.abs(hashString(name)) % 360;
+  const saturation = 65; // Fixed saturation for consistency
+  const lightness = 55; // Fixed lightness for readability
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 const getAvatarClassFromName = (name) => {
@@ -404,17 +537,15 @@ const getInitials = (name) => {
   return initials;
 }
 
-// TODO: implement logics for the function
 const handleEditUser = (userId) => {
-  console.log(userId);
+  showEditUserModal();
 }
 
-// TODO: implement logics for the function
 const handleRemoveUser = (userId) => {
-  console.log(userId);
+  sendEvent('kick-out', userId);
 }
 
-// TODO: implement logics for the function
 const handlePinUser = (userId) => {
-  console.log(userId);
+  addSpotlight(userId);
 }
+

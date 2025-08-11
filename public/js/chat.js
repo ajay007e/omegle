@@ -1,7 +1,9 @@
 import { closePeerConnection } from "./video.js";
 import { outputMessage, outputRoomName, outputUsers, handleUserLeaveSafely } from "./dom.js";
 
+let user_socket;
 export const setupSocket = (socket) => {
+  user_socket = socket;
   socket.on("room-and-users", ({ room, users }) => {
     if(room.type === 'meeting') {
       outputRoomName(room);
@@ -30,8 +32,14 @@ export const setupSocket = (socket) => {
   socket.on("user-left", (userId) => {
     closePeerConnection(userId);
   });
+
+  socket.on("kick-out", ({user, message}) => {
+    user.id === socket.id && forceLeave(message);
+  });
 }
 
-export const sendMessage = (socket, message) => {
-  socket.emit("chat-message", message);
+export const sendEvent = (event, data) => {
+  user_socket.emit(event, data);
 }
+
+const forceLeave = (error) => window.location = `../?error=${error}`;

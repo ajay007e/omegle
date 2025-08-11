@@ -8,13 +8,19 @@ const removeUser = (userId) => {
     return users.splice(idx, 1)[0];
   }
 };
-const getUserById = (userId) => users.find(user => user.id === userId);
+const getUserById = (id) => users.find(user => user.id === id);
+const getUserByUserId = (userId) => users.find(user => user.userId === userId);
 const getUsersByRoom = (room) => users.filter(user => user.room === room);
 const getRandomUserByRoom = (room) => {
   const usersFromGivenRoom = users.filter(user => user.room === room);
   if (usersFromGivenRoom.length === 0) return null;
   const randomIndex = Math.floor(Math.random() * usersFromGivenRoom.length);
   return usersFromGivenRoom[randomIndex];
+}
+const updateUsernameById = (id, username) => {
+  const user = users[users.findIndex(user => user.id == id)];
+  user.username = username;
+  return user;
 }
 const updateHost = (host) => {
   if (!host.isHost) return;
@@ -65,7 +71,9 @@ module.exports = {
   addUser,
   removeUser,
   getUserById,
+  getUserByUserId,
   getUsersByRoom,
+  updateUsernameById,
 
   addRoom,
   removeRoom,

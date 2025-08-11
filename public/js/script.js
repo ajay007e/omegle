@@ -1,10 +1,10 @@
-import { setupSocket, sendMessage } from "./chat.js"
+import { setupSocket, sendEvent } from "./chat.js"
 import { startPeerConnection } from "./video.js";
 import { 
   setupRoomPage,
   bindLeaveButtonListener, 
   bindChatMessageInputListener,
-  bindActionToggleButtonListener 
+  bindActionToggleButtonListener
 } from "./dom.js";
 
 const socket = io();
@@ -26,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     bindChatMessageInputListener(
       chatMessageInput,
-      (message) => {sendMessage(socket, message)}
+      (message) => {sendEvent('chat-message', message)}
     );
   }
 });
@@ -41,7 +41,7 @@ window.addEventListener("DOMContentLoaded", () => {
     );
     bindChatMessageInputListener(
       chatMessageInput,
-      (message) => {sendMessage(socket, message)}
+      (message) => {sendEvent('chat-message', message)}
     );
     setupRoomPage();
   }

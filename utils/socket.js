@@ -1,11 +1,12 @@
 const formatMessage = require("./messages");
 const { whenUserJoins, whenUserLeaves } = require("./users");
-const { getUsersByRoom, getRoomById, getUserById } = require("./database")
+const { getUsersByRoom, getRoomById, getUserById, getUserByUserId, updateUsernameById } = require("./database")
 const {
   global_constants,
   message_templates,
   message_helper_functions,
-  socket_events
+  socket_events,
+  warnings
 } = require("./constants")
 
 
@@ -55,6 +56,19 @@ const socket = (io) => {
         users: getUsersByRoom(user.room),
       });
     });
+
+    socket.on(socket_events.USER_FORCE_LEFT, (userId) => {
+      const user = getUserByUserId(userId);
+      io.to(user.room).emit(socket_events.USER_FORCE_LEFT, {user, message: warnings.HOST_REMOVED_YOU});
+    });
+
+    socket.on(socket_events.EDIT_USER, (username) => {
+      const user = updateUsernameById(socket.id, username);
+      io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+        room: getRoomById(user.room),
+        users: getUsersByRoom(user.room),
+      });
+    })
 
     socket.on(socket_events.CLIENT_MESSAGE, (msg) => {
       const user = getUserById(socket.id);

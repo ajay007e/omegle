@@ -38,14 +38,20 @@ const socket_events = {
   USER_LEFT: 'user-left',
   CLIENT_MESSAGE: 'chat-message',
   SERVER_MESSAGE: 'message',
-  INFO_MESSAGE: 'info-message'
-  
+  INFO_MESSAGE: 'info-message',
+  USER_FORCE_LEFT: 'kick-out',
+  EDIT_USER: 'edit-user'
 };
+
+const warnings ={
+  HOST_REMOVED_YOU: 'Host remove you from the meeting room'
+}
 
 module.exports = {
   global_constants,
   message_templates,
   message_helper_functions,
   socket_events,
-  room_types
+  room_types,
+  warnings
 }
