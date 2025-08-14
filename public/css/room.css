@@ -175,6 +175,10 @@
 
   border-radius: 0.75rem;
   position: relative;
+
+  transition:
+    transform 0.25s ease, order 0.25s ease, 
+    box-shadow 0.6s ease, border-color 0.6s ease; /* Smooth fade */
 }
 
 .video-container .video-frame video {
@@ -188,6 +192,38 @@
   height: 100%;
 
 }
+
+.video-frame.speaking {
+  position: relative;
+  box-shadow: 0 0 0 4px rgba(0, 150, 255, 0.5); /* Blue outline */
+  border-radius: 0.75rem;
+  animation: speakingPulse 1.5s ease-in-out infinite;
+  z-index: 2; /* Keep above others */
+}
+
+@keyframes speakingGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 150, 255, 0.5),
+                0 0 25px rgba(0, 150, 255, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.7),
+                0 0 40px rgba(0, 150, 255, 0.4);
+  }
+}
+
+@keyframes speakingPulse {
+  0% {
+    box-shadow: 0 0 0 4px rgba(0, 150, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(0, 150, 255, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 0 4px rgba(0, 150, 255, 0.5);
+  }
+}
+
 
 .video-container .overflow-frame {
     border: 2px solid #fff;
@@ -635,6 +671,7 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
   user-select: none;
+  z-index: 10;
 }
 
 /* Show control panel on container hover */

@@ -1,5 +1,11 @@
 import { closePeerConnection } from "./video.js";
-import { outputMessage, outputRoomName, outputUsers, handleUserLeaveSafely } from "./dom.js";
+import { 
+  outputMessage,
+  outputRoomName,
+  outputUsers,
+  handleUserLeaveSafely,
+  updateUserStream
+} from "./dom.js";
 
 let user_socket;
 export const setupSocket = (socket) => {
@@ -36,6 +42,11 @@ export const setupSocket = (socket) => {
   socket.on("kick-out", ({user, message}) => {
     user.id === socket.id && forceLeave(message);
   });
+
+  socket.on("stream-updated", ({user, data}) => {
+    updateUserStream(user, data);
+  });
+
 }
 
 export const sendEvent = (event, data) => {

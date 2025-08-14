@@ -68,7 +68,12 @@ const socket = (io) => {
         room: getRoomById(user.room),
         users: getUsersByRoom(user.room),
       });
-    })
+    });
+
+    socket.on(socket_events.STREAM_UPDATE, (data) => {
+      const user = getUserById(socket.id);
+      io.to(user.room).emit(socket_events.STREAM_UPDATE, {user, data});
+    });
 
     socket.on(socket_events.CLIENT_MESSAGE, (msg) => {
       const user = getUserById(socket.id);

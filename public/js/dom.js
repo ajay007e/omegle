@@ -1,4 +1,10 @@
-import { toggleControl, isTrackEnabled } from "./video.js";
+import {
+  toggleControl,
+  isTrackEnabled,
+  isStreamActive,
+  getLocalStreamData,
+  updateStreamStatus
+} from "./video.js";
 import { sendEvent } from "./chat.js";
 
 // GLOBAL VARIABLES
@@ -178,7 +184,7 @@ export const cleanUpEmptyVideoFrames = () => {
   // will be created without children; to remove the empty video-frames this utility
   // method will help.
   document.querySelectorAll('.video-frame').forEach(div => {
-    if (div.children.length === 0) {
+    if (div.children.length === 1) {
       div.remove();
     }
   });
@@ -259,6 +265,7 @@ export const toggleControlBtn = (kind) => {
   } else {
     audioControlBtn.classList.toggle("enabled");
   }
+  sendEvent('stream-updated', getLocalStreamData());
 }
 
 
@@ -549,3 +556,32 @@ const handlePinUser = (userId) => {
   addSpotlight(userId);
 }
 
+export const updateUserStream = (user, data) => {
+  const stream = document.getElementById(user.userId)?.querySelector('video')?.srcObject;
+  stream && updateStreamStatus(stream, data);
+}
+
+export const reorderVideoFrames = () => {
+    const frames = Array.from(document.querySelectorAll(".video-frame"));
+
+    const activeFrames = [];
+    const inactiveFrames = [];
+
+    frames.forEach(frame => {
+      const video = frame.querySelector("video");
+      const stream = video?.srcObject;
+
+      const camOn = isStreamActive(stream, 'video');
+      const micOn = isStreamActive(stream, 'audio');
+      const speaking = frame.classList.contains("speaking");
+
+      if (camOn || speaking || micOn) {
+        activeFrames.push(frame);
+      } else {
+        inactiveFrames.push(frame);
+      }
+    });
+
+    document.getElementById("video-section").innerHTML = '';
+    [...activeFrames, ...inactiveFrames].forEach(frame => appendVideoPlayer(frame));
+}
