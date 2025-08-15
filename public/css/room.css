@@ -51,7 +51,6 @@
 }
 .video-container.layout-3:not(.spotlight) .video-frame:nth-last-child(1) {
   grid-column: 2/4;
-  background: white
 }
 
 /* 5–6 videos: 3x2 */
@@ -62,7 +61,6 @@
 }
 .video-container.layout-5:not(.spotlight) .video-frame:nth-last-child(2) {
   grid-column: 2/4;
-  background: white
 }
 
 /* 7–9 videos: 3x3 */
@@ -74,12 +72,10 @@
 }
 .video-container.layout-7:not(.spotlight) .video-frame:nth-last-child(1) {
   grid-column: 3/5;
-  background: white
 }
 
 .video-container.layout-8:not(.spotlight) .video-frame:nth-last-child(2) {
   grid-column: 2/4;
-  background: white
 }
 
 /* 10–16 videos: 4x4 */
@@ -91,11 +87,9 @@
 }
 .video-container.layout-10:not(.spotlight) .video-frame:nth-last-child(2) {
   grid-column: 3/5;
-  background: white
 }
 .video-container.layout-11:not(.spotlight) .video-frame:nth-last-child(3) {
   grid-column: 2/4;
-  background: white
 }
 
 .video-container.layout-13,
@@ -108,15 +102,12 @@
 }
 .video-container.layout-13:not(.spotlight) .video-frame:nth-last-child(1) {
   grid-column: 4/6;
-  background: white
 }
 .video-container.layout-14:not(.spotlight) .video-frame:nth-last-child(2) {
   grid-column: 3/5;
-  background: white
 }
 .video-container.layout-15:not(.spotlight) .video-frame:nth-last-child(3) {
   grid-column: 2/4;
-  background: white
 }
 
 .video-container.spotlight .video-frame.pin {
@@ -124,7 +115,16 @@
   grid-row: 1/-1;
 }
 
-.pin-btn {
+.video-container .video-frame .video-frame-overlay {
+  position: absolute;
+  inset: 0; /* fill the frame */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.video-container .video-frame .video-frame-overlay .pin-btn {
   height: 2.5rem;
   width: 2.5rem;
   padding: 0; /* keep it tight and circular */
@@ -149,13 +149,57 @@
   transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
 }
 
-.pin .pin-btn {
+.video-container .video-frame.pin .video-frame-overlay .pin-btn {
   display: flex;
   opacity: 1;
 }
 
-.pin-btn:hover {
+.video-container .video-frame.pin-btn:hover {
   box-shadow: 0 2px 6px rgba(26, 115, 232, 0.5);
+}
+
+.video-container .video-frame .video-frame-overlay .avatar {
+  align-self: center;
+  justify-self: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.5rem;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+
+  position: absolute;
+  top: 50%;
+  right: 50%;
+  transform: translate(50%, -50%);
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.video-container .video-frame .video-frame-overlay .user-name {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  align-self: flex-end;
+  margin: 0.5rem;
+  pointer-events: none;
+
+  position: absolute;
+  bottom: 0rem;
+}
+
+/* Show avatar when video is hidden */
+.video-container .video-frame.video-off video {
+  display: none;
+}
+
+.video-container .video-frame.video-off .video-frame-overlay .avatar {
+  display: flex;
 }
 
 .video-container .overflow-frame,
@@ -190,10 +234,9 @@
 
   width: 100%;
   height: 100%;
-
 }
 
-.video-frame.speaking {
+.video-container .video-frame.speaking {
   position: relative;
   box-shadow: 0 0 0 4px rgba(0, 150, 255, 0.5); /* Blue outline */
   border-radius: 0.75rem;

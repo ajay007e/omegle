@@ -41,7 +41,8 @@ const socket_events = {
   INFO_MESSAGE: 'info-message',
   USER_FORCE_LEFT: 'kick-out',
   EDIT_USER: 'edit-user',
-  STREAM_UPDATE: 'stream-updated'
+  STREAM_UPDATE: 'stream-updated',
+  USER_WHO: 'user-who'
 };
 
 const warnings ={

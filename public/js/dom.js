@@ -63,11 +63,19 @@ export const outputUsers = (users, isUserHost) => {
 const updateVideoFrames = () => {
   const videoFrames = Array.from(document.querySelectorAll(".video-frame"));
   videoFrames.forEach(element => {
+    let name;
     if(element.id == "host-vf") {
-      element.dataset.name = global_users_collection.find(user => user.isUser)?.username;
+      name = global_users_collection.find(user => user.isUser)?.username;
     } else {
-      element.dataset.name = global_users_collection.find(user => user.userId === element.id)?.username;
+      name = global_users_collection.find(user => user.userId === element.id)?.username;
     }
+    element.dataset.name = name;
+    const avatar = element.querySelector(".avatar");
+    avatar.textContent = getInitials(name);
+    avatar.style.backgroundColor = getAvatarBgFromName(name);
+
+    const username = element.querySelector(".user-name");
+    username.textContent = name;
   });
 }
 
@@ -130,9 +138,11 @@ const generateMessageDiv = (message) => {
 
 
 // UI OUTPUT FUNCTIONS FOR video.js
-export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, isPrivateRoom}) => {
+export const generateVideoPlayer = ({isControlRequired, video, isHost, user, isPrivateRoom}) => {
   const videoPlayer = document.createElement("div");
+  videoPlayer.dataset.name = user.username;
   videoPlayer.classList.add("video-frame");
+  !user.info.isVideoEnabled && videoPlayer.classList.add('video-off');
 
   if (isControlRequired) {
     const control = document.createElement("div");
@@ -162,10 +172,14 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, i
       videoPlayer.id = "user-vf"
     } else {
       videoPlayer.classList.add("user-vf")
-      videoPlayer.id = userId;
+      videoPlayer.id = user.userId;
     }
   }
 
+  const videoFrameOverlay = document.createElement('div');
+  videoFrameOverlay.className = 'video-frame-overlay';
+
+  // pin button for the user spotlight
   const pinButton = document.createElement('button');
   pinButton.innerHTML = '<i class="fas fa-thumbtack"></i>';
   pinButton.classList.add('pin-btn');
@@ -173,8 +187,23 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, userId, i
     removeSpotlight();
     adjustRoomVideoLayout(false);
   });
-  videoPlayer.appendChild(pinButton);
-  
+
+  // avatar frame
+  const avatarDiv = document.createElement('div');
+  avatarDiv.className = 'avatar';
+  avatarDiv.textContent = getInitials(user.username);
+  avatarDiv.style.backgroundColor = getAvatarBgFromName(user.username);
+
+  // username label
+  const usernameDiv = document.createElement('div');
+  usernameDiv.className = 'user-name';
+  usernameDiv.textContent = user.username;
+
+  videoFrameOverlay.appendChild(pinButton);
+  videoFrameOverlay.appendChild(avatarDiv);
+  videoFrameOverlay.appendChild(usernameDiv);
+
+  videoPlayer.appendChild(videoFrameOverlay);
   videoPlayer.appendChild(video);
   return videoPlayer;
 }
@@ -489,11 +518,11 @@ const generateOverflowVideoFrame = (videoFrames) => {
   const miniUsers = document.createElement("div");
   miniUsers.className = "mini-users"
 
-  const MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME = 2;
+  const MAXIMUN_NO_OF_AVATARS_IN_OVERFLOW_FRAME = 2;
   let missingUsers = 0;
-  videoFrames.slice(0, MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME).forEach(frame => {
+  videoFrames.slice(0, MAXIMUN_NO_OF_AVATARS_IN_OVERFLOW_FRAME).forEach(frame => {
     const miniThumbnail = document.createElement("div");
-    miniThumbnail.classList.add("mini-thumbnail", "avathar");
+    miniThumbnail.classList.add("mini-thumbnail", "avatar");
     const name = frame.dataset.name;
     if (name) {
       miniThumbnail.textContent = getInitials(name);
@@ -504,7 +533,7 @@ const generateOverflowVideoFrame = (videoFrames) => {
     }
   });
 
-  const remainingFrames = videoFrames.length - MAXIMUN_NO_OF_AVATHARS_IN_OVERFLOW_FRAME + missingUsers;
+  const remainingFrames = videoFrames.length - MAXIMUN_NO_OF_AVATARS_IN_OVERFLOW_FRAME + missingUsers;
   console.log(videoFrames.length, missingUsers)
   if(remainingFrames > 0) {
     const miniMoreThumbnail = document.createElement("div");
@@ -557,8 +586,18 @@ const handlePinUser = (userId) => {
 }
 
 export const updateUserStream = (user, data) => {
-  const stream = document.getElementById(user.userId)?.querySelector('video')?.srcObject;
+  let videoFrame = document.getElementById(user.userId);
+  const stream = videoFrame?.querySelector('video')?.srcObject;
   stream && updateStreamStatus(stream, data);
+  
+  if (!videoFrame) {
+    videoFrame = document.getElementById("host-vf");
+  }
+  if (data.isVideoEnabled) {
+    videoFrame?.classList.remove("video-off")
+  } else {
+    videoFrame?.classList.add("video-off")
+  }
 }
 
 export const reorderVideoFrames = () => {

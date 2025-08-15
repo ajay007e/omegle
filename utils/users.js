@@ -16,7 +16,7 @@ const {
 } = require("./helper")
 
 
-const whenUserJoins = (id, roomId, username, userId) => {
+const whenUserJoins = (id, roomId, username, userId, info) => {
   const {room, isAlone, type} = getRoomForUser(roomId);
   return addUser({
     id,
@@ -24,7 +24,8 @@ const whenUserJoins = (id, roomId, username, userId) => {
     room,
     isAlone,
     isHost: isAlone,
-    userId
+    userId,
+    info
   });
 }
 

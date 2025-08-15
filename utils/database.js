@@ -36,6 +36,12 @@ const updateHost = (host) => {
     users[users.findIndex(user => user.id === newHost.id)].isHost = true;
   }
 }
+const updateUserInfoById = (id, info) => {
+  const user = users[users.findIndex(user => user.id == id)];
+  user.info = info;
+  return user;
+
+}
 
 
 const rooms = [];
@@ -74,6 +80,7 @@ module.exports = {
   getUserByUserId,
   getUsersByRoom,
   updateUsernameById,
+  updateUserInfoById,
 
   addRoom,
   removeRoom,

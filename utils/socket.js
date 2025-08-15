@@ -1,6 +1,13 @@
 const formatMessage = require("./messages");
 const { whenUserJoins, whenUserLeaves } = require("./users");
-const { getUsersByRoom, getRoomById, getUserById, getUserByUserId, updateUsernameById } = require("./database")
+const { 
+  getUsersByRoom,
+  getRoomById,
+  getUserById,
+  getUserByUserId,
+  updateUsernameById,
+  updateUserInfoById
+} = require("./database")
 const {
   global_constants,
   message_templates,
@@ -12,8 +19,8 @@ const {
 
 const socket = (io) => {
   io.on(socket_events.SOCKET_CONNECTED, (socket) => {
-    socket.on(socket_events.JOIN_ROOM, ({ username, roomId, userId }) => {
-      const user = whenUserJoins(socket.id, roomId, username, userId);
+    socket.on(socket_events.JOIN_ROOM, ({ username, roomId, userId, info }, callback) => {
+      const user = whenUserJoins(socket.id, roomId, username, userId, info);
       socket.join(user.room);
       const room = getRoomById(user.room);
       if (user.isAlone) {
@@ -49,17 +56,23 @@ const socket = (io) => {
         socket,
         user.room,
         socket_events.USER_JOINED,
-        userId
+        user
       );
       io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
         room: getRoomById(user.room),
         users: getUsersByRoom(user.room),
       });
+      callback(user);
     });
 
     socket.on(socket_events.USER_FORCE_LEFT, (userId) => {
       const user = getUserByUserId(userId);
       io.to(user.room).emit(socket_events.USER_FORCE_LEFT, {user, message: warnings.HOST_REMOVED_YOU});
+    });
+
+    socket.on(socket_events.USER_WHO, (id, callback) => {
+      const user = getUserByUserId(id);
+      callback(user);
     });
 
     socket.on(socket_events.EDIT_USER, (username) => {
@@ -71,7 +84,7 @@ const socket = (io) => {
     });
 
     socket.on(socket_events.STREAM_UPDATE, (data) => {
-      const user = getUserById(socket.id);
+      const user = updateUserInfoById(socket.id, data);
       io.to(user.room).emit(socket_events.STREAM_UPDATE, {user, data});
     });
 

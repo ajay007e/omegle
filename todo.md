@@ -1,7 +1,6 @@
 # OD-4: Room Based Video Call
 
 ## Features
-- [ ] Username if video is inactive
 - [ ] Share Screen Functionality
 
 ## Bug Fixes
@@ -24,3 +23,4 @@
 - [b] Fix Mini Player issue in private room
 - [f] Provide functionalities for controls buttons in participant role-based UI options
 - [f] Reorder the video frames based on the active video-audio stream
+- [f] Username if video is inactive
