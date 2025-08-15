@@ -162,12 +162,13 @@ export const updateStreamStatus = (stream, data) => {
 
 export const getLocalStreamData = () => {
   return {
-    isAudioEnabled: getTrack('audio').enabled,
-    isVideoEnabled: getTrack('video').enabled
+    isAudioEnabled: getTrack('audio')?.enabled,
+    isVideoEnabled: getTrack('video')?.enabled
   }
 }
 
 const monitorAudioActivity = (stream, onSpeakingChange) => {
+    if (!stream.getAudioTracks().enabled) return;
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);

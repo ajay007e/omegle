@@ -229,9 +229,21 @@ const handleMiniVideoPlayer = () => {
   const videoFramesCount = document.querySelectorAll(".video-frame").length;
   const isSpotlightEnabled = document.querySelector(".spotlight");
   if ((videoPlayer?.id === 'user-vf' || videoFramesCount == 2) && !isSpotlightEnabled) {
-    hostVideoPlayer.classList.add("mini");
+    hostVideoPlayer?.classList.add("mini");
   } else {
-    hostVideoPlayer.classList.remove("mini");
+    hostVideoPlayer?.classList.remove("mini");
+  }
+}
+
+const handleMoreParticipants = () => {
+  const videoFrames = Array.from(document.querySelectorAll(".video-frame:not(.pin)"));
+  videoFrames.forEach(frame => frame.classList.remove("hidden"));
+  document.getElementById("video-frame-more")?.remove();
+  const allowedParticipantCount = window.matchMedia("(max-width: 768px)").matches ? 4 : 16;
+  if (videoFrames.length > allowedParticipantCount) {
+    const targetVideoFrames = videoFrames.slice(allowedParticipantCount - 2, videoFrames.length-1);
+    targetVideoFrames.forEach(frame => frame.classList.add("hidden"));
+    appendVideoPlayer(generateOverflowVideoFrame(targetVideoFrames));
   }
 }
 
@@ -273,13 +285,15 @@ export const adjustRoomVideoLayout = (isPrivateRoom = false) => {
     const isSpotlightEnabled = container.classList.contains('spotlight');
     container.className = `video-container ${isSpotlightEnabled && count != 1 ? 'spotlight' : ''}`;
 
+    const mq = window.matchMedia("(max-width: 768px)");
     if (count < 3) {
       container.classList.add(`layout-1`);
-    } else if (count > 2 && count < 16) {
+    } else if (count > 2 && count < (mq.matches ? 8 : 16)) {
       container.classList.add(`layout-${count}`);
     } else {
-      container.classList.add(`layout-16`);
+      container.classList.add(`layout-${mq.matches ? 16 : 8}`);
     }
+    handleMoreParticipants();
     handleSpotlight();
   }
   handleMiniVideoPlayer();
@@ -302,6 +316,7 @@ export const toggleControlBtn = (kind) => {
 export const setupRoomPage = () => {
   setupSideBar();
   setupModel();
+  window.matchMedia("(max-width: 768px)").addEventListener('change', adjustRoomVideoLayout(false));
 }
 
 const showEditUserModal = () => {
@@ -379,8 +394,13 @@ const setupSideBar = () => {
 
   sidebarBtn.addEventListener('click', () => {
     container.classList.toggle('sidebar-visible');
-    sidebar.classList.toggle('visible');}
-  );
+    sidebar.classList.toggle('visible');
+  });
+
+  document.getElementById('sidebar-close-btn')?.addEventListener('click', () => {
+    container.classList.remove('sidebar-visible');
+    sidebar.classList.remove('visible');
+  });
 
   document.getElementById('copy-room-code')?.addEventListener('click', () => {
     const code = document.getElementById('room-code-text')?.textContent;
@@ -534,7 +554,6 @@ const generateOverflowVideoFrame = (videoFrames) => {
   });
 
   const remainingFrames = videoFrames.length - MAXIMUN_NO_OF_AVATARS_IN_OVERFLOW_FRAME + missingUsers;
-  console.log(videoFrames.length, missingUsers)
   if(remainingFrames > 0) {
     const miniMoreThumbnail = document.createElement("div");
     miniMoreThumbnail.classList.add("mini-thumbnail");

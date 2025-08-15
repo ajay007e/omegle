@@ -230,7 +230,8 @@
 }
 
 .chat-form-container input[type="text"] {
-  flex: 1;
+  flex: 1 1 0; 
+  min-width: 0; 
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -267,7 +268,7 @@
     flex-direction: column;
   }
 
-  .chat-left-container {
+  .chat-main-container .chat-left-container {
     width: 100%;
     height: 40%;
     flex: none;
@@ -294,7 +295,7 @@
     margin: 0 0.5%;
   }
 
-  .chat-right-container {
+  .chat-main-container .chat-right-container {
     width: 100%;
     height: 60%;
     flex: none;
@@ -312,7 +313,7 @@
 
 
 @media (max-width: 600px) {
-  .chat-left-container {
+  .chat-main-container .chat-left-container {
     width: 100%;
     height: 40%;
     position: relative;

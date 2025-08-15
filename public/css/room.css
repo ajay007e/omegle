@@ -37,12 +37,6 @@
   grid-template-rows: 1fr;
 }
 
-/* 2 videos */
-.video-container.layout-2 {
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 1fr;
-}
-
 /* 3-4 videos: 2x2 */
 .video-container.layout-3,
 .video-container.layout-4 {
@@ -338,6 +332,16 @@
   transform: translateX(0);
   opacity: 1;
   pointer-events: auto;
+}
+
+.video-sidebar .close-btn {
+  position: absolute;
+  top: 1rem;   /* distance from top edge */
+  right: 1rem; /* distance from right edge */
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
 }
 
 .sidebar-panel {
@@ -702,7 +706,7 @@
 /* Control panel */
 #control-panel {
   position: absolute;
-  bottom: 10px;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -714,7 +718,7 @@
   pointer-events: none;
   transition: opacity 0.3s ease;
   user-select: none;
-  z-index: 10;
+  z-index: 5;
 }
 
 /* Show control panel on container hover */
@@ -816,3 +820,59 @@
   font-size: 0.7rem;
 }
 
+
+@media (max-width: 768px) {
+  .video-sidebar {
+    width: calc(100% - 2rem);
+    opacity:0;
+    max-width: none;
+  }
+  .room-container.sidebar-visible .video-container {
+    width: calc(100% - 1rem);
+  }
+
+  .room-container #control-panel {
+    opacity: 1;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  /* 5–6 videos: 3x2 */
+  .video-container.layout-5,
+  .video-container.layout-6 {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 1fr 1fr 1fr;
+  }
+  .video-container.layout-5:not(.spotlight) .video-frame:nth-last-child(1) {
+    grid-column: 2/4;
+  }
+  .video-container.layout-5:not(.spotlight) .video-frame:nth-last-child(2) {
+    grid-column: span 2;
+  }
+
+  /* 7–9 videos: 3x3 */
+  .video-container.layout-7,
+  .video-container.layout-8,
+  .video-container.spotlight {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+  }
+  .video-container.layout-7:not(.spotlight) .video-frame:nth-last-child(1) {
+    grid-column: 2/4;
+  }
+  .video-container.spotlight .video-frame.pin {
+    grid-column: 1/5;
+    grid-row: 1/-2;
+  }
+  .video-container.spotlight.layout-1 .video-frame:not(.pin) {
+    grid-column: 2/4;
+  }
+  .video-container.spotlight.layout-4 .video-frame.pin,
+  .video-container.spotlight.layout-5 .video-frame.pin {
+    grid-column: 1/5;
+    grid-row: 1/-3;
+  }
+  .video-container.spotlight.layout-4 .video-frame:nth-last-child(1 of :not(.pin)) {
+    grid-column: 2/4;
+  }
+}
