@@ -1,0 +1,22 @@
+<div id="toast-container"></div>
+
+<script>
+  window.showToast = function(message, type = 'error') {
+    const toastContainer = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.classList.add('toast', type);
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.remove();
+    }, 3500);
+  };
+
+  <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+    window.addEventListener('DOMContentLoaded', () => {
+      window.showToast("<%= errorMessage %>", 'error');
+    });
+  <% } %>
+</script>

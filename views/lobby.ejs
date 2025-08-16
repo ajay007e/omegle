@@ -25,18 +25,20 @@
     <div class="split-bottom">
         <div class="action-buttons">
           <div class="left-section">
-            <a id="start-chat-btn" class="action-btn" href="/chat">Start Chat</a>
+            <a id="start-chat-btn" class="action-btn" href="/c">Start Chat</a>
 
-            <div id="join-room-container" class="hidden">
+            <form action="/r" method="POST" id="join-room-container" class="hidden">
               <input
                 type="text"
                 id="room-code"
                 placeholder="Enter room code"
                 class="room-input"
+                name="roomCode"
                 aria-label="Room code"
+                autocomplete="off"
               />
-              <button id="join-btn" class="action-btn secondary">Join Room</button>
-            </div>
+              <button type="submit" id="room-join-btn" class="action-btn secondary">Join Room</button>
+            </form>
           </div>
 
           <button
@@ -51,5 +53,4 @@
         <p><strong>Ad:</strong> Discover more at <a href="#">example.com</a></p>
       </div>
     </div>
-
 </section>

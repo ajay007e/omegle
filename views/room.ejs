@@ -1,0 +1,74 @@
+<div class="room-container">
+    <div class="video-container" id="video-section"></div>
+    <aside id="video-sidebar" class="video-sidebar">
+      <button class="close-btn" id="sidebar-close-btn">&times;</button>
+      <section id="chat-panel" class="sidebar-panel">
+        <div class="sidebar-header">
+          <h3>In-call messages</h3>
+        </div>
+        <div class="chat-right-container">
+          <div class="chat-messages-area"></div>
+          <div class="chat-form-container">
+            <form id="chat-form">
+              <input id="chat-message-input" name="chatMessageInput" type="text" placeholder="Enter Message" required autocomplete="off" />
+              <button class="message-send-btn">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section id="people-panel" class="sidebar-panel hidden">
+        <div class="sidebar-header">
+          <h3>People</h3>
+        </div>
+        <div class="people-search">
+            <input
+              type="text"
+              name="search"
+              id="people-search-input"
+              placeholder="Search people"
+              aria-label="Search participants"
+            />
+        </div>
+        <h4 class="people-section-title">
+          In the meeting
+        </h4>
+        <ul class="people-list" id="people-list"></ul>
+      </section>
+      <section id="room-panel" class="sidebar-panel hidden">
+        <div class="sidebar-header">
+          <h3>Meeting details</h3>
+        </div>
+        <div class="room-info">
+          <span class="label">Joining Info</span>
+          <div class="room-code">
+            <span id="room-code-text"><%= roomId %></span>
+          </div>
+          <button id="copy-room-code" aria-label="Copy room code">
+            <i class="fa fa-clipboard"></i> Copy joining info
+          </button>
+        </div>
+      </section>
+      <!-- Bottom Navigation -->
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-target="chat-panel"><i class="fas fa-comment"></i></button>
+        <button class="nav-btn" data-target="people-panel"><i class="fas fa-users"></i></button>
+        <button class="nav-btn" data-target="room-panel"><i class="fas fa-info-circle"></i></button>
+      </nav>
+    </aside>
+    <div id="control-panel">
+        <button id="audio-cntl"><i class="fas fa-microphone"></i></button>
+        <button id="camara-cntl"><i class="fas fa-video"></i></button>
+        <!-- <button id="btn-share" class="info"><i class="fas fa-laptop"></i></button> -->
+        <button id="btn-sidebar" class="default"><i class="fas fa-ellipsis-v"></i></button>
+    </div>
+</div>
+
+<script>
+  window.APP_CONTEXT = {
+    page: "<%= page %>",
+    username: "<%= username %>",
+    roomId: "<%= roomId %>"
+  };
+</script>

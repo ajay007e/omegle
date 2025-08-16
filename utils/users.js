@@ -1,38 +1,44 @@
 const {
-  rearrangeRoomWhenUserLeaves,
-  getRoomForUser
+  getUsersByRoom,
+  getUsersCountInRoom,
+  getUserById,
+  removeUser,
+  addUser
+} = require("./database");
+
+const {
+  getRoomForUser,
+  handleRoomWhenUserLeaves
 } = require("./rooms")
 
+const {
+  getRandomUserName
+} = require("./helper")
 
-const users = [];
 
-const whenUserJoins = (id, username, userId) => {
-  const {room, isAlone} = getRoomForUser()
-  const user = {id, username, room, isAlone, userId};
-  users.push(user);
-  return user;
+const whenUserJoins = (id, roomId, username, userId, info) => {
+  const {room, isAlone, type} = getRoomForUser(roomId);
+  return addUser({
+    id,
+    username: getRandomUserName(username, type),
+    room,
+    isAlone,
+    isHost: isAlone,
+    userId,
+    info
+  });
 }
 
 const whenUserLeaves = (id) => {
-  const userIdx = getUserIdx(id);
-  if (userIdx !== -1) {
-    userRoom = getUserRoomByIdx(userIdx)
-    rearrangeRoomWhenUserLeaves(userRoom);
-    return users.splice(userIdx, 1)[0];
+  const user = getUserById(id);
+  if (user) {
+    handleRoomWhenUserLeaves(user.room);
+    return removeUser(user.id);
   }
 }
 
-const getUsersByRoom = (room) => users.filter((user) => user.room === room);
-
-const getUserRoomByIdx = (userIdx) => users[userIdx].room;
-
-const getUserIdx = (id) => users.findIndex((user) => user.id === id);
-
-const getCurrentUser = (id) => users.find((user) => user.id === id);
 
 module.exports = {
   whenUserJoins,
-  getCurrentUser,
-  whenUserLeaves,
-  getUsersByRoom,
+  whenUserLeaves
 };

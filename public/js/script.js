@@ -1,11 +1,13 @@
-import { setupSocket, sendMessage } from "./chat.js"
+import { setupSocket, sendEvent } from "./chat.js"
 import { startPeerConnection } from "./video.js";
 import { 
-  bindActionToggleButtonListener, 
+  setupRoomPage,
   bindLeaveButtonListener, 
-  bindChatMessageInputListener 
+  bindChatMessageInputListener,
+  bindActionToggleButtonListener
 } from "./dom.js";
 
+const socket = io();
 
 const joinActionToggleButton = document.getElementById("action-toggle-btn");
 const chatLeaveButton = document.getElementById("room-leave-btn");
@@ -17,10 +19,31 @@ bindActionToggleButtonListener(joinActionToggleButton, () => {});
 
 window.addEventListener("DOMContentLoaded", () => {
   if (window.APP_CONTEXT?.page === "chat") {
-    const socket = io();
     setupSocket(socket);
-    startPeerConnection(socket, window.APP_CONTEXT.username);
-    bindChatMessageInputListener(chatMessageInput, (message) => {sendMessage(socket, message)});
+    startPeerConnection(
+      socket,
+      window.APP_CONTEXT.username
+    );
+    bindChatMessageInputListener(
+      chatMessageInput,
+      (message) => {sendEvent('chat-message', message)}
+    );
+  }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (window.APP_CONTEXT?.page === "room") {
+    setupSocket(socket);
+    startPeerConnection(
+      socket,
+      window.APP_CONTEXT.username,
+      window.APP_CONTEXT.roomId
+    );
+    bindChatMessageInputListener(
+      chatMessageInput,
+      (message) => {sendEvent('chat-message', message)}
+    );
+    setupRoomPage();
   }
 });
 

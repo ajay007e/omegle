@@ -15,6 +15,8 @@
     <script type="module" src="js/script.js"></script>
   </head>
   <body>
+    <%-include("../partials/toast")%>
+    <%-include("../partials/model")%>
     <%if (isCurrentPageLobby) {%>
         <%-include("../partials/main-header")%>
     <%} else { %>
@@ -31,5 +33,3 @@
     <script src="/socket.io/socket.io.js"></script>
   </body>
 </html>
-
-

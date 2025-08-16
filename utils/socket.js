@@ -1,63 +1,134 @@
 const formatMessage = require("./messages");
-const {
-  whenUserJoins,
-  getCurrentUser,
-  whenUserLeaves,
+const { whenUserJoins, whenUserLeaves } = require("./users");
+const { 
   getUsersByRoom,
-} = require("./users");
+  getRoomById,
+  getUserById,
+  getUserByUserId,
+  updateUsernameById,
+  updateUserInfoById
+} = require("./database")
 const {
-  botName,
-  waitingMessage,
-  strangerLeftMessage,
-  strangerJoinMessage,
-  infoMessage,
-  roomUsers
+  global_constants,
+  message_templates,
+  message_helper_functions,
+  socket_events,
+  warnings
 } = require("./constants")
 
+
 const socket = (io) => {
-  io.on("connection", (socket) => {
-    socket.on("joinRoom", ({ username, userId }) => {
-      const user = whenUserJoins(socket.id, username, userId);
+  io.on(socket_events.SOCKET_CONNECTED, (socket) => {
+    socket.on(socket_events.JOIN_ROOM, ({ username, roomId, userId, info }, callback) => {
+      const user = whenUserJoins(socket.id, roomId, username, userId, info);
       socket.join(user.room);
-
+      const room = getRoomById(user.room);
       if (user.isAlone) {
-        socket.emit(infoMessage, formatMessage(botName, waitingMessage));
+        socket.emit(
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_templates.WAITING_MESSAGE,
+            {room, user}
+          )
+        );
       } else {
-        socket.emit(infoMessage, formatMessage(botName, strangerJoinMessage));
+        socket.emit(
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username),
+            {room, user}
+          )
+        );
       }
+      socketBroadcast(
+        socket, 
+        user.room, 
+        socket_events.INFO_MESSAGE,
+        formatMessage(
+          global_constants.BOT_NAME,
+          message_helper_functions.GENERATE_USER_JOIN_MESSAGE(user.username), 
+          {room, user}
+        )
+      );
+      socketBroadcast(
+        socket,
+        user.room,
+        socket_events.USER_JOINED,
+        user
+      );
+      io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+        room: getRoomById(user.room),
+        users: getUsersByRoom(user.room),
+      });
+      callback(user);
+    });
 
-      socketBroadcast(socket, user.room, infoMessage, formatMessage(botName, strangerJoinMessage));
-      socketBroadcast(socket, user.room, 'user-joined', userId);
+    socket.on(socket_events.USER_FORCE_LEFT, (userId) => {
+      const user = getUserByUserId(userId);
+      io.to(user.room).emit(socket_events.USER_FORCE_LEFT, {user, message: warnings.HOST_REMOVED_YOU});
+    });
 
-      io.to(user.room).emit(roomUsers, {
-        room: user.room,
+    socket.on(socket_events.USER_WHO, (id, callback) => {
+      const user = getUserByUserId(id);
+      callback(user);
+    });
+
+    socket.on(socket_events.EDIT_USER, (username) => {
+      const user = updateUsernameById(socket.id, username);
+      io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+        room: getRoomById(user.room),
         users: getUsersByRoom(user.room),
       });
     });
 
-    socket.on("chatMessage", (msg) => {
-      const user = getCurrentUser(socket.id);
-      io.to(user.room).emit("message", formatMessage(user.username, msg, false, socket.id));
+    socket.on(socket_events.STREAM_UPDATE, (data) => {
+      const user = updateUserInfoById(socket.id, data);
+      io.to(user.room).emit(socket_events.STREAM_UPDATE, {user, data});
     });
 
-    socket.on("disconnect", () => {
+    socket.on(socket_events.CLIENT_MESSAGE, (msg) => {
+      const user = getUserById(socket.id);
+      io.to(user.room).emit(socket_events.SERVER_MESSAGE, 
+        formatMessage(
+          user.username,
+          msg, {
+            room: getRoomById(user.room), 
+            user, 
+            isSystemGenerated: false,
+            id: socket.id
+          })
+      );
+    });
+
+    socket.on(socket_events.SOCKET_DISCONNECTED, () => {
       const user = whenUserLeaves(socket.id);
+      const room = getRoomById(user?.room);
       if (user) {
         io.to(user.room).emit(
-          infoMessage,
-          formatMessage(botName, strangerLeftMessage)
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_helper_functions.GENERATE_USER_LEFT_MESSAGE(user.username),
+            {user, room}
+          )
         );
 
-        io.to(user.room).emit(roomUsers, {
-          room: user.room,
+        io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+          room: getRoomById(user.room),
           users: getUsersByRoom(user.room),
         });
 
-        io.to(user.room).emit("user-left", user.userId)
+        io.to(user.room).emit(socket_events.USER_LEFT, user.userId)
 
         io.to(user.room).emit(
-          infoMessage,
-          formatMessage(botName, waitingMessage)
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_templates.WAITING_MESSAGE,
+            {user, room}
+          )
         );
       }
     });
@@ -68,5 +139,5 @@ const socketBroadcast = (socket, room, event, message) => {
    socket.broadcast.to(room).emit(event, message);
 }
 
-module.exports = socket;
 
+module.exports = socket;
