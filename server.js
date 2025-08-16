@@ -3,7 +3,7 @@ const http = require("http");
 const express = require("express");
 const expressLayouts = require("express-ejs-layouts");
 const socketio = require("socket.io");
-const { v4: uuidv4 } = require("uuid");
+const { PeerServer } = require("peer");
 
 const socket = require("./utils/socket");
 const router = require("./routes/main");
@@ -28,3 +28,6 @@ socket(io);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const PEER_PORT = process.env.PEER_PORT || 5001;
+const peerServer = PeerServer({port: PEER_PORT});
