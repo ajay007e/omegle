@@ -5,18 +5,111 @@ import {
   cleanUpEmptyVideoFrames, 
   adjustRoomVideoLayout,
   setupControlPanel,
-  reorderVideoFrames
+  reorderVideoFrames,
+  disableScreenCast,
+  enableScreenCast,
+  addSpotlight,
+  removeSpotlight
 } from "./dom.js";
 
 const userStremDatabase = {};
 
 let localStream = null;
+const peersCollection = {};
 
-export const startPeerConnection = (socket, username, roomId = '') => {
-  const peer = new Peer(undefined, {
+const getNewPeer = (id = undefined) => {
+  return new Peer(id, {
     host: "/",
     port: "5001"
   });
+}
+
+export const beginScreenCast = (socket) => {
+  initiateScreenCast(socket);
+}
+
+const initiateScreenCast = (socket) => {
+  const peer =  getNewPeer();
+  peersCollection['screen-peer'] = peer;
+  peer.on("open", id => {
+    navigator.mediaDevices.getDisplayMedia({
+      video: {cursor: 'always'},
+      audio: true
+    }).then(screenStream => {
+      socket.emit("screen-cast-started", {userId:id, info: {
+        isVideoEnabled: true,
+        isAudioEnabled: true
+      }}, (user) => {
+        const screenVideoElement = document.createElement('video');
+        screenVideoElement.muted = true;
+        const videoFrame = addVideoStream({
+          video: screenVideoElement,
+          stream: screenStream,
+          isControlRequired: false,
+          isHost: false,
+          isPrivateRoom: false,
+          user,
+          isScreenCast: true
+        });
+        const call = peersCollection['user-peer'].call(id, localStream);
+        call.on("close", ()=> {
+            handleCastPeerClose(screenVideoElement, videoFrame);
+        });
+        userStremDatabase[id] = call;
+      });
+
+      peer.on("call", call => {
+        call.answer(screenStream);
+      });
+
+      socket.on('user-joined', user => {
+        peer.call(user.userId, screenStream);
+      });
+
+      screenStream.getVideoTracks()[0].onended = () => {
+        socket.emit("screen-cast-stopped", { userId: id });
+      };
+      
+     
+    });
+  });
+};
+
+export const handleCastStart = (user) => {
+  const call = peersCollection['user-peer']?.call(user.userId, localStream);
+  const castVideo = document.createElement('video');
+  let castVideoFrame = undefined;
+  call.on('stream', castStream => {
+    castVideoFrame = addVideoStream({video: castVideo, stream: castStream, user, isControlRequired: false, isPrivateRoom: false, isScreenCast: true}) 
+  });
+  call.on('close', () => {
+    handleCastPeerClose(castVideo, castVideoFrame);
+  })
+  userStremDatabase[user.userId] = call;
+}
+
+const handleCastPeerClose = (castVideo, castVideoFrame) => {
+  const stream = castVideo.srcObject;
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+  castVideoFrame.remove();
+  removeSpotlight("cast-vf");
+  adjustRoomVideoLayout();
+}
+
+export const handleCastStop = (userId) => {
+  enableScreenCast();
+  userStremDatabase[userId].close();
+}
+
+export const startPeerConnection = (socket, username, roomId = '') => {
+  initiateUserConnection(socket, username, roomId);
+}
+
+const initiateUserConnection = (socket, username, roomId) => {
+  const peer = getNewPeer(); 
+  peersCollection['user-peer'] = peer;
   peer.on("open", id => {
     const hostVideoElement = document.createElement('video');
     hostVideoElement.muted = true;
@@ -39,7 +132,8 @@ export const startPeerConnection = (socket, username, roomId = '') => {
               isHost: true,
               user,
               isControlRequired: isPrivateRoom,
-              isPrivateRoom
+              isPrivateRoom,
+              socket
             });
           }
         );
@@ -51,16 +145,22 @@ export const startPeerConnection = (socket, username, roomId = '') => {
               "user-who",
               call.peer,
               (user) => {
-                addVideoStream({
+                const videoFrame = addVideoStream({
                   video: userVideoElement,
                   stream: userStream,
                   isControlRequired: false,
                   user,
-                  isPrivateRoom
+                  isPrivateRoom,
+                  isScreenCast: user.isScreenCast
                 });
+                if(user.isScreenCast) {
+                  userStremDatabase[user.userId] = call;
+                  call.on("close", () => {
+                    handleCastPeerClose(userVideoElement, videoFrame);
+                  })
+                }
               }
             );
-            
           });
         });
         socket.on('user-joined', user => {
@@ -121,17 +221,27 @@ const connectToNewUser = ({peer, user, stream, isPrivateRoom}) => {
     userStremDatabase[user.userId] = call;
 }
 
-const addVideoStream = ({video, stream, isControlRequired, isHost = false, user, isPrivateRoom}) => {
+const addVideoStream = ({
+  video,
+  stream,
+  isControlRequired,
+  isHost = false,
+  user,
+  isPrivateRoom,
+  socket = undefined,
+  isScreenCast = false
+}) => {
     if (!stream || !video)  return;
     video.srcObject = stream;
-    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, user, isPrivateRoom});
+    const videoPlayer = generateVideoPlayer({isControlRequired, video, isHost, user, isPrivateRoom, isScreenCast});
     video.addEventListener('loadedmetadata', () => {
       video.play();
       appendVideoPlayer(videoPlayer);
       cleanUpEmptyVideoFrames();
       adjustRoomVideoLayout(isPrivateRoom);
-      !isPrivateRoom && isHost && setupControlPanel();
+      !isPrivateRoom && isHost && setupControlPanel(socket);
       !isPrivateRoom && initUserActivityTracking(stream, videoPlayer);
+      isScreenCast && addSpotlight('cast-vf') && disableScreenCast();
     });
     return videoPlayer;
 }

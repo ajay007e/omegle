@@ -1,4 +1,4 @@
-import { closePeerConnection } from "./video.js";
+import { closePeerConnection, handleCastStart, handleCastStop } from "./video.js";
 import { 
   outputMessage,
   outputRoomName,
@@ -45,6 +45,14 @@ export const setupSocket = (socket) => {
 
   socket.on("stream-updated", ({user, data}) => {
     updateUserStream(user, data);
+  });
+
+  socket.on('screen-cast-stopped', user => {
+    handleCastStop(user?.userId);
+  });
+
+  socket.on('screen-cast-started', user => {
+    handleCastStart(user);
   });
 
 }

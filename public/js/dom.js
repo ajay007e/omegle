@@ -3,7 +3,8 @@ import {
   isTrackEnabled,
   isStreamActive,
   getLocalStreamData,
-  updateStreamStatus
+  updateStreamStatus,
+  beginScreenCast
 } from "./video.js";
 import { sendEvent } from "./chat.js";
 
@@ -66,10 +67,13 @@ const updateVideoFrames = () => {
     let name;
     if(element.id == "host-vf") {
       name = global_users_collection.find(user => user.isUser)?.username;
-    } else {
+    } else if (element.id == "cast-vf") {
+      name = "Presenatation"
+    }else {
       name = global_users_collection.find(user => user.userId === element.id)?.username;
     }
     element.dataset.name = name;
+    if (!name) console.log(element)
     const avatar = element.querySelector(".avatar");
     avatar.textContent = getInitials(name);
     avatar.style.backgroundColor = getAvatarBgFromName(name);
@@ -138,7 +142,7 @@ const generateMessageDiv = (message) => {
 
 
 // UI OUTPUT FUNCTIONS FOR video.js
-export const generateVideoPlayer = ({isControlRequired, video, isHost, user, isPrivateRoom}) => {
+export const generateVideoPlayer = ({isControlRequired, video, isHost, user, isPrivateRoom, isScreenCast}) => {
   const videoPlayer = document.createElement("div");
   videoPlayer.dataset.name = user.username;
   videoPlayer.classList.add("video-frame");
@@ -167,6 +171,8 @@ export const generateVideoPlayer = ({isControlRequired, video, isHost, user, isP
 
   if (isHost) {
     videoPlayer.id = "host-vf";
+  } else if (isScreenCast) {
+    videoPlayer.id = "cast-vf";
   } else {
     if (isPrivateRoom) {
       videoPlayer.id = "user-vf"
@@ -264,14 +270,15 @@ const handleSpotlight = () => {
   }
 }
 
-const addSpotlight = (userId) => {
+export const addSpotlight = (userId) => {
   document.querySelector('.video-container').classList.add('spotlight');
   document.querySelector('.pin')?.classList.remove('pin');
   document.getElementById(userId).classList.add('pin');
   adjustRoomVideoLayout(false);
+  return true;
 }
 
-const removeSpotlight = () => {
+export const removeSpotlight = () => {
   document.querySelector('.video-container').classList.remove('spotlight');
   document.querySelector('.pin')?.classList.remove('pin');
 }
@@ -350,7 +357,7 @@ const setupModel = () => {
   });
 }
 
-export const setupControlPanel = () => {
+export const setupControlPanel = (socket, isScreenCastEnabled = false) => {
   const camaraControlBtn = document.getElementById("camara-cntl");
   isTrackEnabled("video", true) ? camaraControlBtn.classList.add("enabled") : camaraControlBtn.classList.add("disabled");
   camaraControlBtn.addEventListener("click", () => toggleControl('video'));
@@ -358,6 +365,19 @@ export const setupControlPanel = () => {
   const audioControlBtn = document.getElementById("audio-cntl");
   isTrackEnabled("audio", true) ? audioControlBtn.classList.add("enabled") : audioControlBtn.classList.add("disabled");
   audioControlBtn.addEventListener("click", () => toggleControl('audio'));
+
+  const screenCastBtn = document.getElementById("screen-cntl");
+  isScreenCastEnabled ? screenCastBtn.classList.add("pointer-none") : screenCastBtn.classList.remove("pointer-none");
+  screenCastBtn.addEventListener("click", () => beginScreenCast(socket));
+}
+
+export const disableScreenCast = () => {
+  document.getElementById("screen-cntl").classList.add("pointer-none");
+}
+
+export const enableScreenCast = () => {
+  document.getElementById("cast-vf")?.remove();
+  document.getElementById("screen-cntl").classList.remove("pointer-none");
 }
 
 const setupSideBar = () => {
@@ -587,9 +607,8 @@ const getAvatarClassFromName = (name) => {
 }
 
 const getInitials = (name) => {
-  const parts = name.trim().split(' ');
-  const initials = parts.map(p => p[0].toUpperCase()).slice(0, 2).join('');
-  return initials;
+  const parts = name?.trim().split(' ');
+  return parts.map(p => p[0].toUpperCase()).slice(0, 2).join('');
 }
 
 const handleEditUser = (userId) => {

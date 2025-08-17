@@ -8,6 +8,14 @@ const removeUser = (userId) => {
     return users.splice(idx, 1)[0];
   }
 };
+const removeUserByUserId = (userId) => {
+  const idx = users.findIndex(user => user.userId === userId);
+  if (idx !== -1) {
+    updateHost(users[idx]);
+    const user = users.splice(idx, 1)[0];
+    return user;
+  }
+};
 const getUserById = (id) => users.find(user => user.id === id);
 const getUserByUserId = (userId) => users.find(user => user.userId === userId);
 const getUsersByRoom = (room) => users.filter(user => user.room === room);
@@ -30,7 +38,7 @@ const updateHost = (host) => {
     newHost = getRandomUserByRoom(host.room);
     attempts++;
     if (attempts > 10000) throw new Error("Too many attempts to find new host.");
-  } while(getUsersByRoom(host.room).length != 1 && newHost.id === host.id);
+  } while(getUsersByRoom(host.room).length != 1 && newHost.id === host.id && newHost.username == "Presentation");
   if (newHost) {
     // direct mutation of users collection
     users[users.findIndex(user => user.id === newHost.id)].isHost = true;
@@ -47,7 +55,7 @@ const updateUserInfoById = (id, info) => {
 const rooms = [];
 
 const getAllRooms = () => rooms;
-const addRoom = (id, type) => rooms.push({id, type});
+const addRoom = (id, type) => rooms.push({id, type, presentationStatus: false});
 const removeRoom = (roomId) => {
   const idx = rooms.findIndex(room => room.id === roomId);
   if (idx !== -1) {
@@ -71,6 +79,14 @@ const updateRoomTypeById = (id, type) => {
   return false;
 };
 
+const updateRoomStatusById = (id, status) => {
+  const room = getRoomById(id);
+  if (room) {
+    room.presentationStatus = status;
+  }
+  return room;
+}
+
 
 
 module.exports = {
@@ -81,6 +97,7 @@ module.exports = {
   getUsersByRoom,
   updateUsernameById,
   updateUserInfoById,
+  removeUserByUserId,
 
   addRoom,
   removeRoom,
@@ -88,5 +105,6 @@ module.exports = {
   getRoomById,
   getRoomsByType,
   getRandomRoomByType,
-  updateRoomTypeById
+  updateRoomTypeById,
+  updateRoomStatusById
 }

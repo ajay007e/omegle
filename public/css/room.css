@@ -781,6 +781,12 @@
   background: #fb8c00;
 }
 
+#control-panel .pointer-none {
+  opacity: 0.5;        /* make it look inactive */
+  pointer-events: none; /* prevent clicks */
+  cursor: not-allowed;  /* show disabled cursor */
+}
+
 
 .overflow-frame {
   background: rgba(0,0,0,0.7);
