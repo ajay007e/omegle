@@ -6,7 +6,7 @@ const isStringEmpty = (str) => str === undefined || str.trim() === '';
 const generateRandomNumber = (max = 1000) => Math.floor(Math.random() * max);
 
 const getRandomUserName = (username, type) => {
-  if (type !== 'meeting') return username;
+  if (type !== 'meeting' || username === 'Presentation') return username;
 
   const adjectives = [
     "Agile", "Brave", "Calm", "Daring", "Eager", "Fancy", "Gentle", "Happy", "Ideal",

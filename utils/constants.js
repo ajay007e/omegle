@@ -4,6 +4,9 @@ const strangerJoinMessage = (username) => `${username} has joined the chat`;
 const checkStrangerJoinMessage = (message) => message.endsWith('has joined the chat');
 const strangerLeftMessage = (username) => `${username} has left the chat`;
 const checkStrangerLeftMessage = (message) => message.endsWith('has left the chat');
+const presentationStartMessage = (username) => `${username} has started presenting`
+const presentationStopMessage = (username) => `${username} has stopped presenting`
+const checkPresentationMessage = (message) => message.endsWith('presenting');
 
 const global_constants = {
   BOT_NAME: botName,
@@ -27,6 +30,9 @@ const message_helper_functions = {
   GENERATE_USER_LEFT_MESSAGE: strangerLeftMessage,
   CHECK_USER_JOIN_MESSAGE: checkStrangerJoinMessage,
   CHECK_USER_LEFT_MESSAGE: checkStrangerLeftMessage,
+  GENERATE_USER_START_PRESENTATION_MESSAGE: presentationStartMessage,
+  GENERATE_USER_STOP_PRESENTATION_MESSAGE: presentationStopMessage,
+  CHECK_USER_PRESENTATION_MESSAGE: checkPresentationMessage,
 };
 
 const socket_events = {
@@ -42,7 +48,9 @@ const socket_events = {
   USER_FORCE_LEFT: 'kick-out',
   EDIT_USER: 'edit-user',
   STREAM_UPDATE: 'stream-updated',
-  USER_WHO: 'user-who'
+  USER_WHO: 'user-who',
+  CAST_STARTED: 'screen-cast-started',
+  CAST_STOPPED: 'screen-cast-stopped'
 };
 
 const warnings ={

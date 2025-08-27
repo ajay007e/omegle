@@ -1,4 +1,4 @@
-# OD-4: Room Based Video Call
+# OD-5: Screen Cast
 
 ## Features
 - [ ] Share Screen Functionality
@@ -19,8 +19,3 @@
 - [ ] Improve logging in the entire application both in front-end and backend
 
 ## Completed
-- [f] Provide functionalities for control buttons for the host video via the main room controls
-- [b] Fix Mini Player issue in private room
-- [f] Provide functionalities for controls buttons in participant role-based UI options
-- [f] Reorder the video frames based on the active video-audio stream
-- [f] Username if video is inactive

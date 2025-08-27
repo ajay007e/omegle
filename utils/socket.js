@@ -1,12 +1,14 @@
 const formatMessage = require("./messages");
 const { whenUserJoins, whenUserLeaves } = require("./users");
 const { 
+  removeUserByUserId,
   getUsersByRoom,
   getRoomById,
   getUserById,
   getUserByUserId,
   updateUsernameById,
-  updateUserInfoById
+  updateUserInfoById,
+  updateRoomStatusById
 } = require("./database")
 const {
   global_constants,
@@ -88,6 +90,55 @@ const socket = (io) => {
       io.to(user.room).emit(socket_events.STREAM_UPDATE, {user, data});
     });
 
+    socket.on(socket_events.CAST_STARTED, ({userId, info}, callback) => {
+      let user = getUserById(socket.id);
+      const username = user.username;
+      user = whenUserJoins(socket.id, user.room, 'Presentation', userId, info);
+      const room = updateRoomStatusById(user.room);
+      socketBroadcast(
+        socket,
+        user.room,
+        socket_events.INFO_MESSAGE,
+        formatMessage(
+          global_constants.BOT_NAME,
+          message_helper_functions.GENERATE_USER_START_PRESENTATION_MESSAGE(username),
+          {room, user}
+        )
+      );
+      socketBroadcast(
+        socket,
+        user.room,
+        socket_events.CAST_STARTED,
+        user
+      );
+      io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+        room,
+        users: getUsersByRoom(user.room),
+      });
+      callback(user);
+    });
+
+    socket.on(socket_events.CAST_STOPPED, ({userId}) => {
+      const user = removeUserByUserId(userId);
+      const room = getRoomById(user?.room);
+      if (user) {
+        io.to(user.room).emit(
+          socket_events.INFO_MESSAGE,
+          formatMessage(
+            global_constants.BOT_NAME,
+            message_helper_functions.GENERATE_USER_STOP_PRESENTATION_MESSAGE(user.username),
+            {user, room}
+          )
+        );
+        io.to(user.room).emit(socket_events.ROOM_AND_USERS, {
+          room: getRoomById(user.room),
+          users: getUsersByRoom(user.room),
+        });
+
+        io.to(user.room).emit(socket_events.CAST_STOPPED, user)
+      }
+    })
+
     socket.on(socket_events.CLIENT_MESSAGE, (msg) => {
       const user = getUserById(socket.id);
       io.to(user.room).emit(socket_events.SERVER_MESSAGE, 
@@ -136,7 +187,7 @@ const socket = (io) => {
 }
 
 const socketBroadcast = (socket, room, event, message) => {
-   socket.broadcast.to(room).emit(event, message);
+  socket.broadcast.to(room).emit(event, message);
 }
 
 

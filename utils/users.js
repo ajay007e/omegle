@@ -18,14 +18,16 @@ const {
 
 const whenUserJoins = (id, roomId, username, userId, info) => {
   const {room, isAlone, type} = getRoomForUser(roomId);
+  username = getRandomUserName(username, type);
   return addUser({
     id,
-    username: getRandomUserName(username, type),
+    username,
     room,
     isAlone,
     isHost: isAlone,
     userId,
-    info
+    info,
+    isScreenCast: username === 'Presentation'
   });
 }
 
